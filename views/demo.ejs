@@ -1,28 +1,19 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>LayIM即时通讯 - 在线演示 - layui</title>
-    <meta name="renderer" content="webkit">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="format-detection" content="telephone=no">
-    <script src="/socket.io/socket.io.js"></script>
-    <link rel="stylesheet" href="layui/css/layui.css" media="all">
-    <!--<link rel="stylesheet" href="//res.layui.com/css/global.css?t=1492165103938" media="all">-->
-
-</head>
-<body>
+<% include header %>
 <script src="layui/layui.js?t=1492165103938" charset="utf-8"></script>
+<script src="/socket.io/socket.io.js"></script>
 <div id="LAY_democodejs">
     <script>
-        layui.use('layim', function () {
+        layui.use(['layim', "jquery"], function () {
             var layim = layui.layim;
+            var $ = layui.jquery;
             var socket = io();
             socket.on("connect", function () {
                 console.log(socket.id);
+                $.post("/im/socketID", {
+                    ID: socket.id
+                }, function (data) {
+                    console.log(data)
+                })
             });
             //演示自动回复
             var autoReplay = [
@@ -41,7 +32,7 @@
             layim.config({
                 //初始化接口
                 init: {
-                    url: 'getList.json'
+                    url: '/im/getList'
                     , data: {}
                 }
                 //查看群员接口
@@ -83,7 +74,7 @@
                 //,voice: false //声音提醒，默认开启，声音文件为：default.mp3
 
                 , msgbox: 'msgbox.html' //消息盒子页面地址，若不开启，剔除该项即可
-                ,find: '/layim/demo/find.html' //发现页面地址，若不开启，剔除该项即可
+                , find: 'find.html' //发现页面地址，若不开启，剔除该项即可
 //                ,chatLog: '/layim/demo/chatLog.html' //聊天记录页面地址，若不开启，剔除该项即可
 
             });
@@ -94,7 +85,17 @@
 
             //监听签名修改
             layim.on('sign', function (value) {
-                layer.msg(value);
+                $.post("/im/sign",{value:value},function (data) {
+                    if(data.code==="0"){
+                        layer.msg("修改签名成功");
+                    }else {
+                        layer.msg(data.message);
+                    }
+
+                },function (err) {
+                    console.log(err);
+                })
+
             });
             //监听自定义工具栏点击，以添加代码为例
             layim.on('tool(code)', function (insert) {
@@ -121,30 +122,41 @@
                 if (To.type === 'friend') {
                     layim.setChatStatus('<span style="color:#FF5722;">对方正在输入。。。</span>');
                 }
+//                data.type="chatMessage";
+                socket.emit("message", {
+                    type: "chatMessage",
+                    content: data
+                });
+                socket.on("noonline", function (data) {
+                    layim.setChatStatus('<span style="color:#FF5722;">对方不在线</span>');
+                    console.log(data);
+                })
+                socket.on("chatMessage", function (data) {
 
-                //演示自动回复
-                setTimeout(function () {
-                    var obj = {};
-                    if (To.type === 'group') {
-                        obj = {
-                            username: '模拟群员' + (Math.random() * 100 | 0)
-                            , avatar: layui.cache.dir + 'images/face/' + (Math.random() * 72 | 0) + '.gif'
-                            , id: To.id
-                            , type: To.type
-                            , content: autoReplay[Math.random() * 9 | 0]
-                        }
-                    } else {
-                        obj = {
-                            username: To.name
-                            , avatar: To.avatar
-                            , id: To.id
-                            , type: To.type
-                            , content: autoReplay[Math.random() * 9 | 0]
-                        };
-                        layim.setChatStatus('<span style="color:#FF5722;">在线</span>');
-                    }
-                    layim.getMessage(obj);
-                }, 1000);
+                })
+                 //         演示自动回复
+                /* setTimeout(function () {
+                 var obj = {};
+                 if (To.type === 'group') {
+                 obj = {
+                 username: '模拟群员' + (Math.random() * 100 | 0)
+                 , avatar: layui.cache.dir + 'images/face/' + (Math.random() * 72 | 0) + '.gif'
+                 , id: To.id
+                 , type: To.type
+                 , content: autoReplay[Math.random() * 9 | 0]
+                 }
+                 } else {
+                 obj = {
+                 username: To.name
+                 , avatar: To.avatar
+                 , id: To.id
+                 , type: To.type
+                 , content: autoReplay[Math.random() * 9 | 0]
+                 };
+                 layim.setChatStatus('<span style="color:#FF5722;">在线</span>');
+                 }
+                 layim.getMessage(obj);
+                 }, 1000);*/
             });
             //监听查看群员
             layim.on('members', function (data) {
@@ -405,5 +417,4 @@
         });
     </script>
 </div>
-</body>
-</html>
+<% include footer %>

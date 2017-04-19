@@ -7,6 +7,11 @@ var UserSchema = new Schema({
     username: {type: String},                    //用户账号
     password: {type: String},                        //密码
     email: {type: String},
+    socketID:{type:String},
+    sign:{type:String},
+    avatar:{type:String},
+    friend: Schema.Types.Mixed,
+    group:Schema.Types.Mixed,
     salt: {type: String}
 });
 module.exports = mongoose.model('User', UserSchema);

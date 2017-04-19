@@ -1,7 +1,47 @@
 <%- include header %>
-<form method="post">
-	用户名：<input type="text" name="name"/><br/>
-	密码： <input type="password" name="password"/><br/>
-	<input type="submit" value="登录"/>
+<form method="post" class="loginForm" action="/login">
+    <label for="name">
+        <span class="layui-icon"> &#xe612;</span>
+       <input type="text" name="name" placeholder="唯一的用户名"><br/>
+    </label>
+    <label for="">
+       <span class="layui-icon">&#xe642</span><input type="password" name="password" placeholder="密码"><br/>
+    </label>
+    <p class="">默认自动登录(30天内有效)</p>
+    <input type="submit" value="登录" class="layui-bg-cyan "/>
 </form>
+<script>
+    layui.use(["jquery", "layer"], function () {
+        var $ = layui.jquery;
+        var layer = layui.layer
+        var form = $(".loginForm");
+        form.submit(function () {
+            var name = $("input[name='name']").val(),
+                phone = $("input[name='password']").val();
+//                content = $("textarea[name='Content']").val();
+            if ($.trim(name).length == 0) {
+                layer.open({
+                    title: "提示",
+                    content: "请输入用户名！"
+                })
+                return false;
+            }
+            if ($.trim(phone).length == 0) {
+                layer.open({
+                    title: "提示",
+                    content: "密码不能为空！"
+                })
+                return false;
+            }
+            /* $.post(form.attr("action"), form.serialize(), function (data) {
+             console.log(data)
+             });*/
+            layer.open({
+                type:3
+            })
+            return true;
+        });
+
+    })
+</script>
 <%- include footer %>

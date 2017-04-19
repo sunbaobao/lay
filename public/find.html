@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Apple devices fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Apple devices fullscreen -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" href="stylesheets/find.css">
+    <style>
+        .layim-msgbox {
+            margin: 15px;
+        }
+
+        .layim-msgbox li {
+            position: relative;
+            margin-bottom: 10px;
+            padding: 0 130px 10px 60px;
+            padding-bottom: 10px;
+            line-height: 22px;
+            border-bottom: 1px dotted #e2e2e2;
+        }
+
+        .layim-msgbox .layim-msgbox-tips {
+            margin: 0;
+            padding: 10px 0;
+            border: none;
+            text-align: center;
+            color: #999;
+        }
+
+        .layim-msgbox .layim-msgbox-system {
+            padding: 0 10px 10px 10px;
+        }
+
+        .layim-msgbox li p span {
+            padding-left: 5px;
+            color: #999;
+        }
+
+        .layim-msgbox li p em {
+            font-style: normal;
+            color: #FF5722;
+        }
+
+        .layim-msgbox-avatar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50px;
+            height: 50px;
+        }
+
+        .layim-msgbox-user {
+            padding-top: 5px;
+        }
+
+        .layim-msgbox-content {
+            margin-top: 3px;
+        }
+
+        .layim-msgbox .layui-btn-small {
+            padding: 0 15px;
+            margin-left: 5px;
+        }
+
+        .layim-msgbox-btn {
+            position: absolute;
+            right: 0;
+            top: 12px;
+            color: #999;
+        }
+    </style>
+    <title>Title</title>
+</head>
+<body>
+<script src="layui/layui.js"></script>
+<div class="find">
+    <div class="findW">
+        <input type="text" id="find"> <a class="layui-btn layui-icon" id="findBtn" href="javascript:;">&#xe615;</a>
+    </div>
+</div>
+<div id="view"></div>
+<template type="text/html" id="template">
+    <div class="nav">
+        <p>搜索：{{d.name}}</p>
+    </div>
+    <p class="p10">找到：{{d.num }}个人</p>
+    <ul class="lisW">
+        {{# layui.each(d.list, function(index, item){ }}
+        <li class="lis">
+            <div class="imgW"><img src=" {{ item.avatar }} " alt="">
+            </div>
+            <div class="right">
+                <p>{{item.name}}</p>
+                <span>&nbsp;{{item.sign}}</span>
+            </div>
+            <a href="javascript:;" class="layui-btn">加为好友</a>
+        </li>
+        {{# }); }}
+    </ul>
+</template>
+<script>
+    layui.use(['layim', 'flow',"laytpl"], function () {
+        var layim = layui.layim
+            , layer = layui.layer
+            , laytpl = layui.laytpl
+            , $ = layui.jquery
+            , flow = layui.flow;
+        var tem = $("#template").html();
+//        console.log(tem);
+        $("#findBtn").on("click", function () {
+            var name = $("#find").val().trim();
+            if (!name) {
+                layer.msg("查找名称不能为空");
+                return;
+            }
+            $.post("/im/find", {name: name}, function (data) {
+                console.log(data);
+                if (data.code) {
+                    layer.msg("服务器出错了");
+                    return;
+                }
+                laytpl(tem).render({num:data.data.length,name:name,list:data.data},function (html) {
+                    console.log(html);
+                    $("#view").html(html);
+                });
+
+            });
+
+        });
+    });
+</script>
+</body>
+</html>

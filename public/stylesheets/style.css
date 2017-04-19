@@ -15,27 +15,38 @@ p {
     line-height: 24px;
     margin: 1em 0;
 }
-.layui-nav h1{
+
+.layui-nav h1 a {
+    display: block;
     width: 200px;
     height: 60px;
-    /*color: #ffffff;*/
+    color: #c2c2c2;
     font-size: 18px;;
     line-height: 60px;
     text-align: center;
 }
 
+.content {
+    position: absolute;
+    left: 200px;
+    right: 0;
+    z-index: 1000;
+    padding: 10px;
+}
 
 header {
-   /* padding: .5em 0;
-    border-bottom: 1px solid #cccccc;*/
+    /* padding: .5em 0;
+     border-bottom: 1px solid #cccccc;*/
     height: 60px;
     background-color: #393d49;
 }
-header .layui-nav{
+
+header .layui-nav {
     position: absolute;
     right: 0;
     top: 0;
 }
+
 nav {
     float: left;
     font-family: "Microsoft YaHei";
@@ -87,4 +98,52 @@ article a:hover {
     overflow-x: hidden;
     overflow-y: auto;
 
+}
+
+input {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+.loginForm {
+
+
+}
+.loginForm input{
+    width: 400px;
+    height: 40px;
+    border: 1px solid #eeeeee;
+    background-color: #fff;
+    text-indent: 45px;
+
+}
+input[type="submit"]{
+    width: 200px;
+    height: 40px;
+    margin-left: 50px;
+    text-align: center;
+    text-indent: 0;
+    cursor: pointer;
+    color: #fff9ec;
+    background-color: #F74C31;
+    margin-top: 50px;
+    border-radius:5px;
+}
+.loginForm label{
+    display: block;
+    position: relative;
+    margin: 10px;
+}
+.loginForm label span{
+    position: absolute;
+    left: 0;
+    top: 0;
+    border-right: 1px solid #eeeeee;
+    width: 40px;
+    height: 30px;
+    text-align: center;
+    line-height: 33px;
+    font-size: 16px;
+    margin-top: 5px;
 }
