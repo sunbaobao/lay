@@ -133,24 +133,27 @@ router.get('/', function (req, res, next) {
     });
 });
 router.get('/getList', function (req, res, next) {
-    /*if(!req.session.user){
+    if(!req.session.user){
      req.flash('error',"未登录");
      return res.redirect('/login');
      }
-     var user=req.session.user;
-     if(!user.avatar){
-     user.avatar="//res.layui.com/images/fly/avatar/00.jpg";
-     }
-     list.data.mine={
-     "username": user.username,
-     "id": user._id,
-     "status": "online",
-     "sign": user.sign,
-     "avatar":user.avatar
-     };
-     list.data.friend=user.friend;
-     list.data.group=user.group;*/
-    res.json(list);
+     let user=req.session.user;
+    User.findOne({username:user.username},function (err,user) {
+        if(!user.avatar){
+            user.avatar="//res.layui.com/images/fly/avatar/00.jpg";
+        }
+        list.data.mine={
+            "username": user.username,
+            "id": user._id,
+            "status": "online",
+            "sign": user.sign,
+            "avatar":user.avatar
+        };
+        list.data.friend=user.friend;
+        list.data.group=user.group;
+        res.json(list);
+    });
+
 });
 router.post("/socketID", function (req, res, next) {
     if (!req.session.user) {
@@ -207,7 +210,7 @@ router.post("/sign", function (req, res, next) {
             } else {
                 res.json({
                     code: "0",
-                    message: ""
+                    message: "存入数据库成功"
                 })
             }
         })
@@ -221,7 +224,8 @@ router.post("/find", function (req, res, next) {
     }
     let name = req.body.name;
     let data={code:0,data:[]};
-    User.find({username: name}, function (err, users) {
+    const re=new RegExp(name,"g");
+    User.find({username: re}, function (err, users) {
         if(err) return handlErr(err);
         for(let user in users){
             console.log(user);

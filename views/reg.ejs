@@ -1,9 +1,42 @@
 <%- include header %>
-<form method="post">
-	用户名： <input type="text" name="name"/><br/>
-	密码： <input type="password" name="password"/><br/>
-	确认密码：<input type="password" name="password-repeat"/><br/>
-	邮箱： <input type="email" name="email"/><br/>
-	<input type="submit" value="注册"/>
+
+<form class="layui-form" method="post"> <!-- 提示：如果你不想用form，你可以换成div等任何一个普通元素 -->
+	<div class="layui-form-item">
+		<label class="layui-form-label">用户名：</label>
+		<div class="layui-input-block">
+			<input type="text" name="name" lay-verify="required" placeholder="唯一的用户名" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">密码：</label>
+		<div class="layui-input-block">
+			<input type="text" name="password" placeholder="密码" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<label class="layui-form-label">确认密码：</label>
+		<div class="layui-input-block">
+			<input type="text" name="password-repeat" placeholder="二次确认密码" autocomplete="off" class="layui-input">
+		</div>
+	</div><div class="layui-form-item">
+		<label class="layui-form-label">邮箱：</label>
+		<div class="layui-input-block">
+			<input type="email" name="email" placeholder="邮箱地址" autocomplete="off" class="layui-input">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<button class="layui-btn" lay-submit lay-filter="*">立即提交</button>
+			<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		</div>
+	</div>
+	<!-- 更多表单结构排版请移步文档左侧【页面元素-表单】一项阅览 -->
 </form>
+<script>
+    layui.use('form', function(){
+        var form = layui.form();
+
+        //各种基于事件的操作，下面会有进一步介绍
+    });
+</script>
 <%- include footer %>

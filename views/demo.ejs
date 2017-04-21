@@ -86,15 +86,15 @@
             //监听签名修改
             layim.on('sign', function (value) {
                 $.post("/im/sign",{value:value},function (data) {
-                    if(data.code==="0"){
+                    console.log(data);
+                    if(data.code === "0"){
+                        console.log(data);
                         layer.msg("修改签名成功");
                     }else {
                         layer.msg(data.message);
                     }
 
-                },function (err) {
-                    console.log(err);
-                })
+                });
 
             });
             //监听自定义工具栏点击，以添加代码为例
