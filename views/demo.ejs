@@ -113,7 +113,14 @@
             //监听layim建立就绪
             layim.on('ready', function (res) {
                 //console.log(res.mine);
-                layim.msgbox(5); //模拟消息盒子有新消息，实际使用时，一般是动态获得
+                socket.emit("message",{type:"reg",content:{
+                    uid:layim.cache().mine.username,
+                    user:layim.cache().mine
+                }})
+                socket.on("addM",function () {
+                    layim.msgbox(1);
+                })
+//                layim.msgbox(5); //模拟消息盒子有新消息，实际使用时，一般是动态获得
             });
             //监听发送消息
             layim.on('sendMessage', function (data) {

@@ -145,8 +145,8 @@
                     parent.socket.emit("addFriend",{
                         "id": 76,
                         "content": "申请添加你为好友",
-                        "uid": 168,
-                        "from":name,
+                        "uid": parent.layui.layim.cache().mine.username,
+                        "from": parent.layui.layim.cache().mine.username,
                         "from_group": group,
                         "type": 1,
                         "remark": remark,
@@ -156,7 +156,7 @@
                         "user": {
                             "id": name,
                             "avatar": avatar ,
-                            "username": "李彦宏",
+                            "username":name,
                             "sign": null
                         }
                     });

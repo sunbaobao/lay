@@ -86,7 +86,7 @@ const nickNames = {};
 const rooms = [];
 const currentRoom = {};
 const user = [];
-const addMsg = [];
+const Msg = [];
 const autoReplay = [
     '您好，我现在有事不在，一会再和您联系。',
     '你没发错吧？face[微笑] ',
@@ -166,8 +166,16 @@ io.on('connection', function (socket) {
             console.log('用户ID=' + outid + '下线了');
             let out = {id: outid, num: usernum - 1}
             io.sockets.emit('out', out);
-        })
+        });
     socket.on('addFriend', function (data) {
+        let l=Msg[data.uid].length;
+        if (user[data.uid]) {
+            let mydata = {};
+            io.sockets.sockets[user[data.uid]].emit("addM", {code: 0, msg: l});
+        } else {
+            Msg[data.uid].push(data);
+
+        }
         console.log(data);
     })
 });
