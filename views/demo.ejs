@@ -3,10 +3,11 @@
 <script src="/socket.io/socket.io.js"></script>
 <div id="LAY_democodejs">
     <script>
+        var socket = io();
         layui.use(['layim', "jquery"], function () {
             var layim = layui.layim;
             var $ = layui.jquery;
-            var socket = io();
+
             socket.on("connect", function () {
                 console.log(socket.id);
                 $.post("/im/socketID", {

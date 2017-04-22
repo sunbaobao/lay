@@ -4,23 +4,23 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('Ejs:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('Ejs:server');
+const http = require('http');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
-var io = require('socket.io')(server);
+const server = http.createServer(app);
+const io = require('socket.io')(server);
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -34,7 +34,7 @@ server.on('listening', onListening);
  */
 
 function normalizePort(val) {
-    var port = parseInt(val, 10);
+    let port = parseInt(val, 10);
 
     if (isNaN(port)) {
         // named pipe
@@ -60,7 +60,7 @@ function onError(error) {
 
     var bind = typeof port === 'string'
         ? 'Pipe ' + port
-        :'Port ' + port;
+        : 'Port ' + port;
 
     // handle specific listen errors with friendly messages
     switch (error.code) {
@@ -81,12 +81,13 @@ function onError(error) {
  * Event listener for HTTP server "listening" event.
  */
 
-var gustNumber=0;
-var nickNames={};
-var rooms=[];
-var currentRoom={};
-var user=[];
-var autoReplay = [
+const gustNumber = 0;
+const nickNames = {};
+const rooms = [];
+const currentRoom = {};
+const user = [];
+const addMsg = [];
+const autoReplay = [
     '您好，我现在有事不在，一会再和您联系。',
     '你没发错吧？face[微笑] ',
     '洗澡中，请勿打扰，偷窥请购票，个体四十，团体八折，订票电话：一般人我不告诉他！face[哈哈] ',
@@ -97,26 +98,26 @@ var autoReplay = [
     'face[黑线]  你慢慢说，别急……',
     '(*^__^*) face[嘻嘻] ，是贤心吗？'
 ];
-io.on('connection', function(socket){
-    socket.on('message', function(d) {
-        console.log(d);
+io.on('connection', function (socket) {
+    socket.on('message', function (d) {
+        // console.log(d);
         switch (d.type) {
             /*用户上线*/
             case 'reg':
                 user[d.content.uid] = socket.id;
-                var num=0,uuser=[];
-                for (x in user){
+                var num = 0, uuser = [];
+                for (x in user) {
                     uuser.push(x);
                     num++;
                 }
-                d.content.num=num;
+                d.content.num = num;
 
                 //全局事件
                 socket.broadcast.emit('addList', d.content);
 
 
                 ///发给自己
-                var reguser={uuser:uuser,num:num};
+                var reguser = {uuser: uuser, num: num};
                 socket.emit('reguser', reguser);
 
                 console.log('用户上线了：用户id=' + d.content.uid + '| 客户端id=' + socket.id);
@@ -152,24 +153,29 @@ io.on('connection', function(socket){
         }
 
         /*注销事件*/
-    }).on('disconnect', function() {
-        var outid=0,usernum=0;
-        for (x in user) {
-            usernum++;
-            if (user[x] === socket.id) {
-                outid=x
-                delete user[x]
+    })
+        .on('disconnect', function () {
+            let outid = 0, usernum = 0;
+            for (x in user) {
+                usernum++;
+                if (user[x] === socket.id) {
+                    outid = x;
+                    delete user[x]
+                }
             }
-        }
-        console.log('用户ID=' + outid + '下线了');
-        var out={id:outid,num:usernum-1}
-        io.sockets.emit('out',out);
+            console.log('用户ID=' + outid + '下线了');
+            let out = {id: outid, num: usernum - 1}
+            io.sockets.emit('out', out);
+        })
+    socket.on('addFriend', function (data) {
+        console.log(data);
     })
 });
+
 function onListening() {
     var addr = server.address();
     var bind = typeof addr === 'string'
         ? 'pipe ' + addr
-        :'port ' + addr.port;
+        : 'port ' + addr.port;
     debug('Listening on ' + bind);
 }
