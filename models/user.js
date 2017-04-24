@@ -1,15 +1,15 @@
 /**
  * Created by Administrator on 2016/10/6.
  */
-var mongoose = require('./db');
-var Schema = mongoose.Schema;
-var UserSchema = new Schema({
+let mongoose = require('./db');
+let Schema = mongoose.Schema;
+let UserSchema = new Schema({
     username: {type: String},                    //用户账号
     password: {type: String},                        //密码
     email: {type: String},
     socketID:{type:String},
     sign:{type:String},
-    avatar:{type:String},
+    avatar:{type:String,default:"images/avatar.jpg"},
     friend: Schema.Types.Mixed,
     group:Schema.Types.Mixed,
     salt: {type: String}
@@ -26,7 +26,7 @@ module.exports = mongoose.model('User', UserSchema);
 // //存储用户信息
 // User.prototype.save = function (callback) {
 //     //要存入数据库的用户文档
-//     var user = {
+//     let user = {
 //         name: this.name,
 //         password: this.password,
 //         email: this.email

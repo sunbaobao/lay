@@ -1,92 +1,11 @@
-#!/usr/bin/env node
-
 /**
- * Module dependencies.
+ * Created by uu on 2017/4/24.
  */
-
-const app = require('../app');
-const debug = require('debug')('Ejs:server');
-const http = require('http');
-
-/**
- * Get port from environment and store in Express.
- */
-
-const port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
-/**
- * Create HTTP server.
- */
-
-const server = http.createServer(app);
-// const io = require('socket.io')(server);
-/**
- * Listen on provided port, on all network interfaces.
- */
-
-server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
-
-/**
- * Normalize a port into a number, string, or false.
- */
-
-function normalizePort(val) {
-    let port = parseInt(val, 10);
-
-    if (isNaN(port)) {
-        // named pipe
-        return val;
-    }
-
-    if (port >= 0) {
-        // port number
-        return port;
-    }
-
-    return false;
-}
-
-/**
- * Event listener for HTTP server "error" event.
- */
-
-function onError(error) {
-    if (error.syscall !== 'listen') {
-        throw error;
-    }
-
-    var bind = typeof port === 'string'
-        ? 'Pipe ' + port
-        : 'Port ' + port;
-
-    // handle specific listen errors with friendly messages
-    switch (error.code) {
-        case 'EACCES':
-            console.error(bind + ' requires elevated privileges');
-            process.exit(1);
-            break;
-        case 'EADDRINUSE':
-            console.error(bind + ' is already in use');
-            process.exit(1);
-            break;
-        default:
-            throw error;
-    }
-}
-
-/**
- * Event listener for HTTP server "listening" event.
- */
-
-/*const gustNumber = 0;
+const gustNumber = 0;
 const nickNames = {};
 const rooms = [];
 const currentRoom = {};
 const user = [];
-const Msg = [];
 const autoReplay = [
     '您好，我现在有事不在，一会再和您联系。',
     '你没发错吧？face[微笑] ',
@@ -98,14 +17,17 @@ const autoReplay = [
     'face[黑线]  你慢慢说，别急……',
     '(*^__^*) face[嘻嘻] ，是贤心吗？'
 ];
+const server=require("./bin/www");
+const io = require('socket.io')(server);
+const Msg=require("./models/msg");
 io.on('connection', function (socket) {
     socket.on('message', function (d) {
         // console.log(d);
         switch (d.type) {
-            /!*用户上线*!/
+            /*用户上线*/
             case 'reg':
                 user[d.content.uid] = socket.id;
-                var num = 0, uuser = [];
+                let num = 0, uuser = [];
                 for (x in user) {
                     uuser.push(x);
                     num++;
@@ -115,17 +37,16 @@ io.on('connection', function (socket) {
                 //全局事件
                 socket.broadcast.emit('addList', d.content);
 
-
                 ///发给自己
-                var reguser = {uuser: uuser, num: num};
+                let reguser = {uuser: uuser, num: num};
                 socket.emit('reguser', reguser);
 
                 console.log('用户上线了：用户id=' + d.content.uid + '| 客户端id=' + socket.id);
                 break;
 
-            /!*用户发送消息*!/
+            /*用户发送消息*/
             case 'chatMessage':
-                var mydata = {
+                let mydata = {
                     username: d.content.mine.username,
                     avatar: d.content.mine.avatar,
                     id: d.content.mine.id,
@@ -133,10 +54,10 @@ io.on('connection', function (socket) {
                     type: d.content.to.type,
                     toid: d.content.to.id
                 };
-                /!*处理单聊事件*!/
+                /*处理单聊事件*/
                 if (d.content.to.type === 'friend') {
                     console.log("1 friend");
-                    if (user[mydata.toid]) {/!*广播消息*!/
+                    if (user[mydata.toid]) {/*广播消息*/
                         io.sockets.sockets[user[mydata.toid]].emit('chatMessage', mydata);
                         console.log('【' + d.content.mine.username + '】对【' + d.content.to.username + '】说:' + d.content.mine.content)
                     } else {
@@ -144,7 +65,7 @@ io.on('connection', function (socket) {
                     }
 
 
-                    /!*处理群聊事件*!/
+                    /*处理群聊事件*/
                 } else if (d.content.to.type === 'group') {
                     mydata.id = mydata.toid;
                     socket.broadcast.emit('chatMessage', mydata)
@@ -152,12 +73,14 @@ io.on('connection', function (socket) {
                 break
         }
 
-        /!*注销事件*!/
+        /*注销事件*/
     })
         .on('disconnect', function () {
+            // console.log("")
             let outid = 0, usernum = 0;
             for (x in user) {
                 usernum++;
+                console.log(x);
                 if (user[x] === socket.id) {
                     outid = x;
                     delete user[x]
@@ -168,26 +91,52 @@ io.on('connection', function (socket) {
             io.sockets.emit('out', out);
         });
     socket.on('addFriend', function (data) {
-        if(Msg[data.uid]){
+       let myMsg=new Msg(data);
+        myMsg.save();
+        Msg.find({read:false},function (err, messages) {
+           if(err){ console.log(err); return;}
+           let thisM=[];
+           for (let m in messages){
+               if(messages[m].user.id===data.user.id){
+                   thisM.push(messages[m]);
+               }
+           }
+           let l=thisM.length;
+            if (user[data.user.id]) {
+                console.log("在线");
+                let mydata = {};
+                io.sockets.sockets[user[data.user.id]].emit("addM", {code: 0, msg: l});
+            } else {
+                console.log("不在线");
+                // Msg[data.uid].push(data);
 
-        }
-        let l=Msg[data.uid].length;
-        if (user[data.uid]) {
-            let mydata = {};
-            io.sockets.sockets[user[data.uid]].emit("addM", {code: 0, msg: l});
-        } else {
-            Msg[data.uid].push(data);
+            }
+        });
+        /*Msg[data.uid]= Msg[data.uid]||[];
+        let l=Msg[data.uid].length||0;*/
 
-        }
         console.log(data);
     })
-});*/
+});
+function handERr(res,msg) {
+}
 
-function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
-    debug('Listening on ' + bind);
-};
-module.exports=server;
+/**
+ *{ "id": 76,
+ "content": "申请添加你为好友",
+ "uid": 168,
+ "from": 166488,
+ "from_group": 0,
+ "type": 1,
+ "remark": "有问题要问",
+ "href": null,
+ "read": 1,
+ "time": "刚刚",
+ "user": {
+        "id": 166488,
+        "avatar": "//q.qlogo.cn/qqapp/101235792/B704597964F9BD0DB648292D1B09F7E8/100",
+        "username": "李彦宏",
+        "sign": null
+      }
+   }
+ */

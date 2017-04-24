@@ -151,13 +151,14 @@
                         "type": 1,
                         "remark": remark,
                         "href": null,
-                        "read": 1,
+                        "read": false,
+                        "to_id":name,
                         "time": new Date().getTime(),
                         "user": {
-                            "id": name,
-                            "avatar": avatar ,
-                            "username":name,
-                            "sign": null
+                            "id": parent.layui.layim.cache().mine.username,
+                            "avatar": parent.layui.layim.cache().mine.avatar ,
+                            "username":parent.layui.layim.cache().mine.username,
+                            "sign": parent.layui.layim.cache().mine.sign
                         }
                     });
                    /* console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值

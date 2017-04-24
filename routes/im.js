@@ -4,6 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const Msg = require("../models/msg");
 const list = {
     "code": 0,
     "msg": "",
@@ -133,24 +134,25 @@ router.get('/', function (req, res, next) {
     });
 });
 router.get('/getList', function (req, res, next) {
-    if(!req.session.user){
-     req.flash('error',"未登录");
-     return res.redirect('/login');
-     }
-     let user=req.session.user;
-    User.findOne({username:user.username},function (err,user) {
-        if(!user.avatar){
-            user.avatar="//res.layui.com/images/fly/avatar/00.jpg";
+    if (!req.session.user) {
+        req.flash('error', "未登录");
+        return res.redirect('/login');
+    }
+    let user = req.session.user;
+    User.findOne({username: user.username}, function (err, user) {
+        if (!user.avatar) {
+            user.avatar = "images/avatar.jpg";
         }
-        list.data.mine={
+        list.data.mine = {
             "username": user.username,
             "id": user._id,
             "status": "online",
             "sign": user.sign,
-            "avatar":user.avatar
+            "avatar": user.avatar
         };
-        list.data.friend=user.friend;
-        list.data.group=user.group;
+        list.data.friend = user.friend;
+        console.log(user.friend);
+        list.data.group = user.group;
         res.json(list);
     });
 
@@ -223,22 +225,140 @@ router.post("/find", function (req, res, next) {
         return res.redirect('/');
     }
     let name = req.body.name;
-    let data={code:0,data:[]};
-    const re=new RegExp(name,"g");
+    let data = {code: 0, data: []};
+    const re = new RegExp(name, "g");
     User.find({username: re}, function (err, users) {
-        if(err) return handlErr(err);
-        for(let user in users){
+        if (err) return handlErr(err);
+        for (let user in users) {
             console.log(user);
             data.data.push(
-                {name:users[user].username,
-                sign:users[user].sign||"",
-                avatar:users[user].avatar||"//res.layui.com/images/fly/avatar/00.jpg",
-                id:users[user]._id
+                {
+                    name: users[user].username,
+                    sign: users[user].sign || "",
+                    avatar: users[user].avatar || "//res.layui.com/images/fly/avatar/00.jpg",
+                    id: users[user]._id
                 }
             )
         }
         res.json(data);
     })
+});
+router.get("/getmsg", checkLogin);
+router.get("/getmsg", function (req, res, next) {
+    Msg.find({to_id: req.session.user.username}, function (err, messages) {
+        if (err) res.json({code: 1, msg: "查询出错"});
+        res.json({
+            code: 0,
+            pages: 1,
+            data: messages
+        })
+    })
+
+});
+router.get("/getUnmsg", function (req, res, next) {
+    Msg.find({to_id: req.session.user.username, read: false}, function (err, messages) {
+        if (err) res.json({code: 1, msg: "查询出错"});
+        res.json({
+            code: 0,
+            msg: messages.length
+        })
+    })
+
+});
+router.post("/message/read", function (req, res, next) {
+    Msg.find({to_id: req.session.user.username}, function (err, messages) {
+        for (x in messages) {
+            messages[x].read = true;
+            messages[x].save();
+        }
+        res.json({code: 0, "msg": "s"})
+    });
+
+});
+router.post("/agreeFriend", function (req, res, next) {
+    /*uid: uid //对方用户ID
+     ,from_group: from_group //对方设定的好友分组
+     ,group: group //我设定的好友分组*/
+    console.log(req.body.group);
+    if(req.session.user.username===req.body.uid){
+        res.json({code:1,msg:"不能添加自己为好友"});
+        return;
+    }
+    //添加到好友列表
+    User.find({username: req.session.user.username}, function (err, users) {
+        if (err) res.json({code: 1, msg: "数据库查询错误"});
+        let user = users[0];
+        // console.log(user);
+        for (let i in user.friend) {
+            // console.log(user.friend[i].id.toString(), req.body.group);
+            if (user.friend[i].id.toString() === req.body.group) {
+                for(let x in user.friend[i].list){
+                    if(user.friend[i].list[x].id===req.body.uid){
+                        res.json({code:0,msg:"已添加好友"});
+                        return;
+                    }
+                }
+                user.friend[i].list.push({
+                    "username": req.body.uid,
+                    "id": req.body.uid,
+                    "sign": req.body.sign,
+                    "avatar": req.body.avatar
+                });
+                user.markModified("friend");
+                user.save(function (err) {
+                    if (err) console.log(err);
+                });
+                console.log("保存成功", user.friend[i]);
+                /*User.find({username: req.session.user.username}, function (err, user) {
+                 if (err) console.log(err);
+                 // console.log(user[0].friend[0]);
+                 res.json({code: 0});
+                 });*/
+                break;
+            }
+        }
+
+        // return new Promise()
+    });
+//    对方账户添加到好友列表
+    console.log(req.body.uid);
+    let uid = req.body.uid;
+    User.findOne({username: uid}, function (err, user) {
+        if (err) res.json({code: 1, msg: "数据库查询错误"});
+        for (let i in user.friend) {
+            console.log(user.friend[i].id.toString(),req.body.from_group);
+            if (user.friend[i].id.toString() === req.body.from_group) {
+                user.friend[i].list.push({
+                    "username": req.session.user.username,
+                    "id": req.session.user.username,
+                    "sign": req.session.user.sign,
+                    "avatar": req.session.user.avatar
+                });
+                user.markModified("friend");
+                user.save();
+                console.log("保存成功");
+                break;
+            }
+        }
+    });
+    let thisM = new Msg({
+        "content": req.session.user.username + " 已经同意你的好友申请",
+        "uid": 168,
+        "from": null,
+        "to_id": req.body.uid,
+        "from_group": null,
+        "type": 1,
+        "remark": null,
+        "href": null,
+        "read": false,
+        "time": new Date(),
+        "user": {
+            "id": null
+        }
+    });
+    console.log(req.body.uid);
+    thisM.save();
+
 });
 function checkLogin(req, res, next) {
     if (!req.session.user) {

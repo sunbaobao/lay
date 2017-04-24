@@ -86,12 +86,12 @@
 
             //监听签名修改
             layim.on('sign', function (value) {
-                $.post("/im/sign",{value:value},function (data) {
+                $.post("/im/sign", {value: value}, function (data) {
                     console.log(data);
-                    if(data.code === "0"){
+                    if (data.code === "0") {
                         console.log(data);
                         layer.msg("修改签名成功");
-                    }else {
+                    } else {
                         layer.msg(data.message);
                     }
 
@@ -113,12 +113,24 @@
             //监听layim建立就绪
             layim.on('ready', function (res) {
                 //console.log(res.mine);
-                socket.emit("message",{type:"reg",content:{
-                    uid:layim.cache().mine.username,
-                    user:layim.cache().mine
-                }})
-                socket.on("addM",function () {
-                    layim.msgbox(1);
+                socket.emit("message", {
+                    type: "reg", content: {
+                        uid: layim.cache().mine.username,
+                        user: layim.cache().mine
+                    }
+                });
+                $.get("im/getUnmsg", function (data) {
+                    if (data.code != "0") {
+                        layer.msg("服务器错误");
+                        return;
+                    }
+                    if (data.msg === 0) {
+                        return;
+                    }
+                    layim.msgbox(data.msg);
+                })
+                socket.on("addM", function (data) {
+                    layim.msgbox(data.msg);
                 })
 //                layim.msgbox(5); //模拟消息盒子有新消息，实际使用时，一般是动态获得
             });
@@ -140,9 +152,11 @@
                     console.log(data);
                 })
                 socket.on("chatMessage", function (data) {
-
+//收到消息处理
+                    console.log(data);
+                    layim.getMessage(data);
                 })
-                 //         演示自动回复
+                //         演示自动回复
                 /* setTimeout(function () {
                  var obj = {};
                  if (To.type === 'group') {
