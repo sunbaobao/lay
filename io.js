@@ -56,9 +56,11 @@ io.on('connection', function (socket) {
                 };
                 /*处理单聊事件*/
                 if (d.content.to.type === 'friend') {
-                    console.log("1 friend");
+                    console.log("1 friend",mydata.toid);
                     if (user[mydata.toid]) {/*广播消息*/
-                        io.sockets.sockets[user[mydata.toid]].emit('chatMessage', mydata);
+                        console.log(user[mydata.toid]);
+                        socket.broadcast.to(user[mydata.toid]).emit('chatMessage', mydata);
+                        // io.sockets.sockets[user[mydata.toid]].emit('chatMessage', mydata);
                         console.log('【' + d.content.mine.username + '】对【' + d.content.to.username + '】说:' + d.content.mine.content)
                     } else {
                         socket.emit('noonline', mydata);

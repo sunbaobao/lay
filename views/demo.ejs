@@ -7,7 +7,7 @@
         layui.use(['layim', "jquery"], function () {
             var layim = layui.layim;
             var $ = layui.jquery;
-
+            var layer = layui.layer;
             socket.on("connect", function () {
                 console.log(socket.id);
                 $.post("/im/socketID", {
@@ -16,6 +16,20 @@
                     console.log(data)
                 })
             });
+            socket.on("noonline", function (data) {
+                layim.setFriendStatus(data.toid, 'offline');
+                layim.setChatStatus('<span style="color:#FF5722;">对方不在线</span>');
+                console.log("不在线", data);
+            })
+            socket.on("chatMessage", function (data) {
+//收到消息处理
+                console.log(data);
+                console.log("收到消息");
+                layim.getMessage(data);
+            });
+            socket.on("addM", function (data) {
+                layim.msgbox(data.msg);
+            })
             //演示自动回复
             var autoReplay = [
                 '您好，我现在有事不在，一会再和您联系。',
@@ -38,7 +52,7 @@
                 }
                 //查看群员接口
                 , members: {
-                    url: 'getMembers.json'
+                    url: '/im/getMembers'
                     , data: {}
                 }
 
@@ -129,33 +143,74 @@
                     }
                     layim.msgbox(data.msg);
                 })
-                socket.on("addM", function (data) {
-                    layim.msgbox(data.msg);
-                })
+                $("#createGroup").click(function () {
+                    layer.open({
+                        type: 1,
+                        title: "创建群",
+                        content: '<div style="padding: 10px;margin-left: -46px;padding-right: 40px;"><label class="layui-form-label">群名称</label><div class="layui-input-block" ><input type="text" class="layui-input"></div><!--<a href="javascript:;" class="layui-btn" style="float: right;margin-top: 33px;">确定</a>--></div>' //这里content是一个DOM，注意：最好该元素要存放在body最外层，否则可能被其它的相对元素所影响
+                        , area: ['500px', '300px']
+                        , btn: ["确定"]
+                        , yes: function (index, layero) {
+//                            console.log(index,layero);
+                            if (!$(layero).find(".layui-input").val().trim()) {
+                                layer.msg("群名不能为空");
+                                return;
+                            }
+                            console.log($(layero).find(".layui-input").val());
+                            var list = {
+                                type: 'group' //列表类型，只支持friend和group两种
+                                , avatar: "images/groupAvatar.jpg" //群组头像
+                                , groupname: $(layero).find(".layui-input").val() //群组名称
+                                , id: layim.cache().mine.username + new Date().getTime().toString() //群组id
+                            }
+//                            console.log(list);
+                            layim.addList(list);
+                            layer.msg("添加成功");
+                            $.post("im/createGroup",list,function (data) {
+                                if(data.code!=0){layer.msg(data.msg)}else {
+                                    console.log(data.msg);
+                                }
+                            })
+                            layer.close(index);
+//                            return false;
+                        }
+                    });
+                });
 //                layim.msgbox(5); //模拟消息盒子有新消息，实际使用时，一般是动态获得
             });
             //监听发送消息
             layim.on('sendMessage', function (data) {
                 var To = data.to;
-                //console.log(data);
+                console.log(data);
 
                 if (To.type === 'friend') {
                     layim.setChatStatus('<span style="color:#FF5722;">对方正在输入。。。</span>');
                 }
 //                data.type="chatMessage";
+                var obj = {
+                    mine: {
+                        avatar: "avatar.jpg" //我的头像
+                        , content: "你好吗" //消息内容
+                        , id: "100000" //我的id
+                        , mine: true //是否我发送的消息
+                        , username: "纸飞机" //我的昵称
+                    },
+                    to: {
+                        avatar: "avatar.jpg"
+                        , id: "100001"
+                        , name: "贤心"
+                        , sign: "这些都是测试数据，实际使用请严格按照该格式返回"
+                        , type: "friend" //聊天类型，一般分friend和group两种，group即群聊
+                        , username: "贤心"
+                    }
+                }
+                data.mine.id = data.mine.username;
+                data.to.id = data.to.username;
                 socket.emit("message", {
                     type: "chatMessage",
                     content: data
                 });
-                socket.on("noonline", function (data) {
-                    layim.setChatStatus('<span style="color:#FF5722;">对方不在线</span>');
-                    console.log(data);
-                })
-                socket.on("chatMessage", function (data) {
-//收到消息处理
-                    console.log(data);
-                    layim.getMessage(data);
-                })
+
                 //         演示自动回复
                 /* setTimeout(function () {
                  var obj = {};

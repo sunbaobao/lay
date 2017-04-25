@@ -97,8 +97,14 @@
         <span>{{ item.remark ? '附言: '+item.remark : '' }}</span>
       </p>
       <p class="layim-msgbox-btn">
+          {{# if(item.type=="1"){}}
         <button class="layui-btn layui-btn-small" data-type="agree">同意</button>
         <button class="layui-btn layui-btn-small layui-btn-primary" data-type="refuse">拒绝</button>
+          {{# }else if(item.type=="11"){ }}
+         已同意
+         {{# }else if(item.type=="12"){ }}
+          已拒绝
+          {{# } }}
       </p>
     </li>
   {{# } else { }}
@@ -232,12 +238,10 @@
                 if (res.code != 0) {
                     return layer.msg(res.msg);
                 }
-
                 //记录来源用户信息
                 layui.each(res.data, function (index, item) {
                     cache[item.from] = item.user;
                 });
-
                 callback && callback(res.data, res.pages);
             });
         };
@@ -252,12 +256,17 @@
                     for (x in data) {
                         var d = new Date(data[x].time);
                         data[x].time = d.toLocaleString();
-                        console.log(data[x].time);
+//                        console.log(data[x].time);
                     }
                     var html = laytpl(LAY_tpl.value).render({
                         data: data
                         , page: page
                     });
+                    for (y in data) {
+                        if (data[y].type == "11") {
+
+                        }
+                    }
                     next(html, page < pages);
                 });
             }
@@ -277,7 +286,6 @@
                     , from_group = li.data('fromgroup')
                     , user = cache[uid];
                 console.log(from_group);
-
                 //选择分组
                 parent.layui.layim.setFriendGroup({
                     type: 'friend'
@@ -306,7 +314,6 @@
                             , sign: user.sign //好友签名
                             , avatar: user.avatar //好友头像
                         }, function (res) {
-
                             if (res.code != 0) {
                                 return layer.msg(res.msg);
                             }
