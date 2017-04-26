@@ -6,6 +6,7 @@ const router = express.Router();
 const User = require('../models/user');
 const Msg = require("../models/msg");
 const Group = require("../models/group");
+const assert = require("assert");
 const list = {
     "code": 0,
     "msg": "",
@@ -394,16 +395,16 @@ router.post("/agreeFriend", function (req, res, next) {
 
 });
 router.post("/createGroup", function (req, res, next) {
-    User.find({username: req.session.user.username}, function (err, users) {
+    let q = User.find({username: req.session.user.username}, function (err, users) {
         if (err) res.json({code: 1, msg: "数据库查询错误"});
         let user = users[0];
         // console.log(user);
-        user.group=user.group||[];
-       user.group.push({
-           "groupname": req.body.groupname,
-           "id": req.body.id,
-           "avatar": req.body.avatar
-       });
+        user.group = user.group || [];
+        user.group.push({
+            "groupname": req.body.groupname,
+            "id": req.body.id,
+            "avatar": req.body.avatar
+        });
         user.markModified("group");
         user.save();
         // return new Promise()
@@ -417,33 +418,53 @@ router.post("/createGroup", function (req, res, next) {
     newGroup.save(function (err) {
         if (err) res.json({code: 1, msg: "数据库存入错误"});
     });
-    res.json({code:0,msg:"创建成功"})
+    res.json({code: 0, msg: "创建成功"})
 
 });
 router.get("/addG", checkLogin);
-router.post("/addG",function (req,res,next) {
+router.post("/addG", function (req, res, next) {
+    /*console.log(req.body);
+     res.json(req.body);*/
+  let p=Group.findOne({id: req.body.Gid}, function (err, group) {
+        if (err) {handErrJson(err,req,res); return}
+        console.log("1", req.body);
+        group.list=group.list||[];
+        for (let x in group.list) {
+            if (group.list[x].username === req.session.user.username) {
+                res.json({code: 1, msg: "已在群中不可再次加入"});
+                return;
+            }
+        }
+        group.list.push(req.session.user);
+        group.markModified("list");
+        group.save();
+        console.log("Group保存成功");
+    }).exec();
+    // assert.ok(p instanceof require('mpromise'));
 
-       Group.findOne({id:req.body.Gid},function (err, group) {
-           if(err){res.json({code:1,msg:"查询错误"}); return}
+    p.then(function (doc) {
+        console.log("doc",doc);
+      User.findOne({username: req.session.user.username}, function (err, user) {
+       if (err) handErrJson(err,req,res);
+          user.group = user.group || [];
+          for (let i in user.group) {
+              if (user.group[i].id === req.body.Gid) {
+                  //    在群中
+                  res.json({code: 1, msg: "已在群中不可再次加入"});
+                  return;
+              }
+          }
+          user.group.push({
+              "groupname": req.body.groupname,
+              "id": req.body.Gid,
+              "avatar": req.body.avatar
+          });
+          user.markModified("group");
+          user.save();
+          // res.json({code: 0, msg: "保存数据成功"});
+      });
+  })
 
-           group.list.push(req.body.user);
-           group.markModified("list");
-           group.save();
-           console.log("Group保存成功");
-           console.log(req.body.user);
-           User.findOne({username:req.body.user.username},function (err, user) {
-               if(err){res.json({code:1,msg:"查询错误"}); return}
-               user.group=user.group||[];
-               user.group.push({
-                   "groupname": req.body.groupname,
-                   "id": req.body.Gid,
-                   "avatar": req.body.avatar
-               });
-               user.markModified("group");
-               user.save();
-               res.json({code:0,msg:"保存数据成功"});
-           });
-       });
 
 });
 function checkLogin(req, res, next) {
@@ -456,6 +477,10 @@ function checkLogin(req, res, next) {
 function handlErr(err, req, res) {
     req.flash('error', err);
     return res.redirect('/');
+}
+function handErrJson(err, req, res) {
+    console.log(err);
+    return res.json({code: 1, msg: err});
 }
 module.exports = router;
 
