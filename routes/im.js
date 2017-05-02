@@ -425,32 +425,42 @@ router.get("/addG", checkLogin);
 router.post("/addG", function (req, res, next) {
     /*console.log(req.body);
      res.json(req.body);*/
-  let p=Group.findOne({id: req.body.Gid}, function (err, group) {
-        if (err) {handErrJson(err,req,res); return}
-        console.log("1", req.body);
-        group.list=group.list||[];
-        for (let x in group.list) {
-            if (group.list[x].username === req.session.user.username) {
-                res.json({code: 1, msg: "已在群中不可再次加入"});
-                return;
-            }
-        }
-        group.list.push(req.session.user);
-        group.markModified("list");
-        group.save();
-        console.log("Group保存成功");
-    }).exec();
+  let p=new Promise(function (resolve, reject) {
+      Group.findOne({id: req.body.Gid}, function (err, group) {
+          if (err) {reject(err); console.log("err"); return}
+          console.log("1", req.body);
+          group.list=group.list||[];
+          for (let x in group.list) {
+              if (group.list[x].username === req.session.user.username) {
+                  res.json({code: 1, msg: "已在群中不可再次加入"});
+                  return;
+              }
+          }
+          let {username,avatar,sign}=req.session.user;
+          group.list.push({
+              id:username,
+              username:username,
+              avatar:avatar,
+              sign:sign
+          });
+          group.markModified("list");
+          group.save();
+          console.log("Group保存成功");
+          resolve(group);
+      });
+  });
+
     // assert.ok(p instanceof require('mpromise'));
 
     p.then(function (doc) {
-        console.log("doc",doc);
+        // console.log("doc",doc);
       User.findOne({username: req.session.user.username}, function (err, user) {
        if (err) handErrJson(err,req,res);
           user.group = user.group || [];
           for (let i in user.group) {
               if (user.group[i].id === req.body.Gid) {
                   //    在群中
-                  res.json({code: 1, msg: "已在群中不可再次加入"});
+                  res.json({code: 2, msg: "已在群中不可再次加入"});
                   return;
               }
           }
@@ -461,11 +471,24 @@ router.post("/addG", function (req, res, next) {
           });
           user.markModified("group");
           user.save();
-          // res.json({code: 0, msg: "保存数据成功"});
+          res.json({code: 0, msg: "保存数据成功"});
       });
-  })
+  },function (err) {
+        console.log(err);
+    })
 
 
+});
+router.get("/getMembers",function (req, res, next) {
+   let id=req.query.id;
+   Group.findOne({id:id},function (err, group) {
+       if(err){handErrJson(err,req,res);return};
+       let list=group.list||[];
+       for (let i in list){
+          /*if()*/
+       }
+       res.json({code:0,msg:"",data:{list:list}});
+   })
 });
 function checkLogin(req, res, next) {
     if (!req.session.user) {
