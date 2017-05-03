@@ -92,11 +92,13 @@
                 </div>
             </div>
         </div>
-        <div class="layui-tab-item"><div class="find">
-            <div class="findW">
-                <input type="text" id="findG"> <a class="layui-btn layui-icon" id="findBtnG" href="javascript:;">&#xe615;</a>
+        <div class="layui-tab-item">
+            <div class="find">
+                <div class="findW">
+                    <input type="text" id="findG"> <a class="layui-btn layui-icon" id="findBtnG" href="javascript:;">&#xe615;</a>
+                </div>
             </div>
-        </div></div>
+        </div>
 
     </div>
 </div>
@@ -127,12 +129,12 @@
     </ul>
 </template>
 <script>
-    layui.use(['layim', 'flow', "laytpl","element"], function () {
+    layui.use(['layim', 'flow', "laytpl", "element"], function () {
         var layim = layui.layim
             , layer = layui.layer
             , laytpl = layui.laytpl
             , $ = layui.jquery
-            ,ele=layui.element()
+            , ele = layui.element()
             , flow = layui.flow;
         var tem = $("#template").html();
 //        console.log(tem);
@@ -168,7 +170,7 @@
                     layer.msg("服务器出错了");
                     return;
                 }
-                laytpl(tem).render({num: data.data.length,type:1, name: name, list: data.data}, function (html) {
+                laytpl(tem).render({num: data.data.length, type: 1, name: name, list: data.data}, function (html) {
                     console.log(html);
                     $("#view").html(html);
                 });
@@ -230,15 +232,15 @@
         $("#view").on("click", "#addG", function () {
 //            layer.msg("friend");csww
             var name = $(this).parents(".lis").find(".name").text(),
-                id= $(this).parents(".lis").data("id"),
+                id = $(this).parents(".lis").data("id"),
                 avatar = $(this).parents(".lis").find(".avatar").attr("src");
             layim.add({
                 type: 'group' //friend：申请加好友、group：申请加群
                 , username: name //好友昵称，若申请加群，参数为：groupname
                 , avatar: avatar  //头像
                 , submit: function (group, remark, index) { //一般在此执行Ajax和WS，以通知对方
-                    $.post("/im/addG",{
-                        "Gid":id,
+                    $.post("/im/addG", {
+                        "Gid": id,
                         "groupname": name,
                         "avatar": avatar,
                         "user": {
@@ -247,8 +249,17 @@
                             "username": parent.layui.layim.cache().mine.username,
                             "sign": parent.layui.layim.cache().mine.sign
                         }
-                    },function (data) {
-                        console.log("添加群回复",data);
+                    }, function (res) {
+                        console.log("添加群回复", res);
+                        layer.msg(res.msg);
+                        if (!res.code) {
+                            parent.socket.emit("addGS", {
+                                id: res.data.id,
+                                username: parent.layui.layim.cache().mine.username
+                            });
+                            parent.layui.layim.addList(res.data)
+                        }
+
                     });
                     /* console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
                      console.log(remark); //获取附加信息*/

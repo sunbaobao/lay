@@ -10,6 +10,13 @@
             var layer = layui.layer;
             socket.on("connect", function () {
                 console.log(socket.id);
+                socket.emit("message", {
+                    type: "reg", content: {
+                        uid: layim.cache().mine.username,
+                        user: layim.cache().mine,
+                        group:layim.cache().group
+                    }
+                });
                 $.post("/im/socketID", {
                     ID: socket.id
                 }, function (data) {
@@ -25,10 +32,17 @@
 //收到消息处理
                 console.log(data);
                 console.log("收到消息");
+                if(data.username===layim.cache().mine.username){
+                    console.log("发送给自己的");
+                    return;
+                }
                 layim.getMessage(data);
             });
             socket.on("addM", function (data) {
                 layim.msgbox(data.msg);
+            })
+            socket.on("addGS", function (data) {
+                layim.getMessage(data);
             })
             //演示自动回复
             var autoReplay = [
@@ -130,7 +144,8 @@
                 socket.emit("message", {
                     type: "reg", content: {
                         uid: layim.cache().mine.username,
-                        user: layim.cache().mine
+                        user: layim.cache().mine,
+                        group:layim.cache().group
                     }
                 });
                 $.get("im/getUnmsg", function (data) {
@@ -181,11 +196,12 @@
             //监听发送消息
             layim.on('sendMessage', function (data) {
                 var To = data.to;
-                console.log(data);
-
+//                console.log(To.id);
+//                data.to.id=To.id.toString();
+//                console.log(data.to.id);
+                data.mine.id = data.mine.username;
                 if (To.type === 'friend') {
                     layim.setChatStatus('<span style="color:#FF5722;">对方正在输入。。。</span>');
-                }
 //                data.type="chatMessage";
                 var obj = {
                     mine: {
@@ -204,13 +220,13 @@
                         , username: "贤心"
                     }
                 }
-                data.mine.id = data.mine.username;
+//                data.mine.id = data.mine.username;
                 data.to.id = data.to.username;
+                }
                 socket.emit("message", {
                     type: "chatMessage",
                     content: data
                 });
-
                 //         演示自动回复
                 /* setTimeout(function () {
                  var obj = {};
@@ -249,12 +265,7 @@
 //                    layim.setChatStatus('<span style="color:#FF5722;">在线</span>');
                 } else if (type === 'group') {
                     //模拟系统消息
-                    layim.getMessage({
-                        system: true
-                        , id: res.data.id
-                        , type: "group"
-                        , content: '模拟群员' + (Math.random() * 100 | 0) + '加入群聊'
-                    });
+
                 }
             });
 

@@ -235,6 +235,7 @@
             $.get('im/getmsg', {
                 page: page || 1
             }, function (res) {
+                console.log(res);
                 if (res.code != 0) {
                     return layer.msg(res.msg);
                 }
@@ -242,6 +243,7 @@
                 layui.each(res.data, function (index, item) {
                     cache[item.from] = item.user;
                 });
+                res.data.reverse();
                 callback && callback(res.data, res.pages);
             });
         };
@@ -264,7 +266,6 @@
                     });
                     for (y in data) {
                         if (data[y].type == "11") {
-
                         }
                     }
                     next(html, page < pages);

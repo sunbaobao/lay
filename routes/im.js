@@ -418,7 +418,7 @@ router.post("/createGroup", function (req, res, next) {
     newGroup.save(function (err) {
         if (err) res.json({code: 1, msg: "数据库存入错误"});
     });
-    res.json({code: 0, msg: "创建成功"})
+    res.json({code: 0, msg: "创建成功"});
 
 });
 router.get("/addG", checkLogin);
@@ -431,6 +431,9 @@ router.post("/addG", function (req, res, next) {
           console.log("1", req.body);
           group.list=group.list||[];
           for (let x in group.list) {
+              if(group.list[x]===null){
+                  continue;
+              }
               if (group.list[x].username === req.session.user.username) {
                   res.json({code: 1, msg: "已在群中不可再次加入"});
                   return;
@@ -471,7 +474,12 @@ router.post("/addG", function (req, res, next) {
           });
           user.markModified("group");
           user.save();
-          res.json({code: 0, msg: "保存数据成功"});
+          res.json({code: 0, msg: "添加群组成功",data:{
+              type: 'group' //列表类型，只支持friend和group两种
+              ,avatar: doc.avatar//群组头像
+              ,groupname: doc.groupname //群组名称
+              ,id: doc.id //群组id
+          }});
       });
   },function (err) {
         console.log(err);
@@ -485,7 +493,10 @@ router.get("/getMembers",function (req, res, next) {
        if(err){handErrJson(err,req,res);return};
        let list=group.list||[];
        for (let i in list){
-          /*if()*/
+          if(list[i]==null){
+              console.log("null");
+              list.splice(i,1);
+          }
        }
        res.json({code:0,msg:"",data:{list:list}});
    })
