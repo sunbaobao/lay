@@ -501,6 +501,98 @@ router.get("/getMembers",function (req, res, next) {
        res.json({code:0,msg:"",data:{list:list}});
    })
 });
+router.post("/removeFriend", function (req, res, next) {
+    /*uid: uid //对方用户ID
+     ,from_group: from_group //对方设定的好友分组
+     ,group: group //我设定的好友分组*/
+    console.log(req.body.group);
+    if (req.session.user.username === req.body.uid) {
+        res.json({code: 1, msg: "不能添加自己为好友"});
+        return;
+    }
+    //添加到好友列表
+    User.find({username: req.session.user.username}, function (err, users) {
+        if (err) res.json({code: 1, msg: "数据库查询错误"});
+        let user = users[0];
+        // console.log(user);
+        for (let i in user.friend) {
+            // console.log(user.friend[i].id.toString(), req.body.group);
+            if (user.friend[i].id.toString() === req.body.group) {
+                for (let x in user.friend[i].list) {
+                    if (user.friend[i].list[x].id === req.body.uid) {
+                        res.json({code: 0, msg: "已添加好友"});
+                        return;
+                    }
+                }
+                user.friend[i].list.push({
+                    "username": req.body.uid,
+                    "id": req.body.uid,
+                    "sign": req.body.sign,
+                    "avatar": req.body.avatar
+                });
+                user.markModified("friend");
+                user.save(function (err) {
+                    if (err) console.log(err);
+                });
+                console.log("保存成功", user.friend[i]);
+                /*User.find({username: req.session.user.username}, function (err, user) {
+                 if (err) console.log(err);
+                 // console.log(user[0].friend[0]);
+                 res.json({code: 0});
+                 });*/
+                break;
+            }
+        }
+        User.findOne({username: uid}, function (err, user) {
+            if (err) res.json({code: 1, msg: "数据库查询错误"});
+            for (let i in user.friend) {
+                console.log(user.friend[i].id.toString(), req.body.from_group);
+                if (user.friend[i].id.toString() === req.body.from_group) {
+                    user.friend[i].list.push({
+                        "username": req.session.user.username,
+                        "id": req.session.user.username,
+                        "sign": req.session.user.sign,
+                        "avatar": req.session.user.avatar
+                    });
+                    user.markModified("friend");
+                    user.save();
+                    console.log("保存成功");
+                    break;
+                }
+            }
+        });
+        // return new Promise()
+    });
+//    对方账户添加到好友列表
+    console.log(req.body.uid);
+    let uid = req.body.uid;
+    let thisM = new Msg({
+        "content": req.session.user.username + " 已经同意你的好友申请",
+        "uid": 168,
+        "from": null,
+        "to_id": req.body.uid,
+        "from_group": null,
+        "type": 1,
+        "remark": null,
+        "href": null,
+        "read": false,
+        "time": new Date(),
+        "user": {
+            "id": null
+        }
+    });
+    console.log(req.body.uid);
+    thisM.save();
+    Msg.find({from: req.body.uid, from_group: req.body.from_group}, function (err, mesages) {
+        if (err) res.json({code: 1, msg: "查询出错"});
+        for (x in mesages) {
+            mesages[x].type = "11";
+            mesages[x].save();
+        }
+
+    })
+
+});
 function checkLogin(req, res, next) {
     if (!req.session.user) {
         req.flash('error', '未登录!');

@@ -158,6 +158,7 @@
                     }
                     layim.msgbox(data.msg);
                 })
+//                添加群
                 $("#createGroup").click(function () {
                     layer.open({
                         type: 1,
@@ -192,6 +193,14 @@
                     });
                 });
 //                layim.msgbox(5); //模拟消息盒子有新消息，实际使用时，一般是动态获得
+                $("#quitGroup").click(function () {
+                    layer.open({
+                        title:"移除好友或群",
+                        type:2,
+                        content:"quitGroup.html",
+                        area:['600px','500px']
+                    })
+                })
             });
             //监听发送消息
             layim.on('sendMessage', function (data) {
