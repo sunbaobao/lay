@@ -100,28 +100,30 @@ io.on('connection', function (socket) {
         });
     socket.on('addFriend', function (data) {
        let myMsg=new Msg(data);
-        myMsg.save();
-        Msg.find({read:false},function (err, messages) {
-           if(err){ console.log(err); return;}
-           let thisM=[];
-           for (let m in messages){
-               if(messages[m].to_id===data.to_id.toString()){
-                   thisM.push(messages[m]);
-               }
-           }
-           let l=thisM.length;
-            if (user[data.to_id]) {
-                console.log("在线");
-                let mydata = {};
-                console.log(data.user);
-                socket.broadcast.to(user[data.to_id]).emit('addM',{code:0, msg:l});
-                // io.sockets.sockets[user[data.user.id]].emit("addM", {code: 0, msg: l});
-            } else {
-                console.log("不在线");
-                // Msg[data.uid].push(data);
+        myMsg.save(function (err) {
+            Msg.find({read:false},function (err, messages) {
+                if(err){ console.log(err); return;}
+                let thisM=[];
+                for (let m in messages){
+                    if(messages[m].to_id===data.to_id.toString()){
+                        thisM.push(messages[m]);
+                    }
+                }
+                let l=thisM.length;
+                if (user[data.to_id]) {
+                    console.log("在线");
+                    let mydata = {};
+                    console.log(data.user);
+                    socket.broadcast.to(user[data.to_id]).emit('addM',{code:0, msg:l});
+                    // io.sockets.sockets[user[data.user.id]].emit("addM", {code: 0, msg: l});
+                } else {
+                    console.log("不在线");
+                    // Msg[data.uid].push(data);
 
-            }
+                }
+            });
         });
+
         /*Msg[data.uid]= Msg[data.uid]||[];
         let l=Msg[data.uid].length||0;*/
         console.log(data);

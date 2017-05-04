@@ -89,9 +89,6 @@
 
 <div id="view"></div>
 <template type="text/html" id="template">
-    <div class="nav">
-        <p>移除好友</p>
-    </div>
     <p class="p10">共：{{d.num }}个</p>
     <ul class="lisW">
         {{# layui.each(d.list, function(index, item){ }}
@@ -103,9 +100,9 @@
                 <span>&nbsp;</span>
             </div>
             {{# if(d.type){ }}
-            <a href="javascript:;" class="layui-btn" id="addG">移除该群</a>
+            <a href="javascript:;" class="layui-btn rg">移除该群</a>
             {{# }else{ }}
-            <a href="javascript:;" class="layui-btn" id="removeF">移除该好友</a>
+            <a href="javascript:;" class="layui-btn rf">移除该好友</a>
             {{# } }}
         </li>
         {{# }); }}
@@ -113,181 +110,190 @@
 </template>
 <script>
     layui.use(['layim', 'flow', "laytpl", "element"], function () {
-        var layim = layui.layim
-            , layer = layui.layer
+        layer = layui.layer
             , laytpl = layui.laytpl
             , $ = layui.jquery
             , ele = layui.element()
             , flow = layui.flow;
         var tem = $("#template").html();
-        var num=0,list=[];
-        var f=parent.layui.layim.cache().friend;
-        for(var i=0;i<f.length;i++){
-            num+=f[i].list.length;
-            list=list.concat(f[i].list);
+        var num = 0, list = [];
+        var f = parent.layui.layim.cache().friend;
+        for (var i = 0; i < f.length; i++) {
+            num += f[i].list.length;
+            list = list.concat(f[i].list);
         }
-        var thisData={
-            num:num,
-            list:list,
-            type:0
+        var thisData = {
+            num: num,
+            list: list,
+            type: 0  //0为好友 1为群组
         };
         laytpl(tem).render(thisData, function (html) {
             $("#view").html(html);
         });
-        ele.on("tab(quit)",function (data) {
+        ele.on("tab(quit)", function (data) {
             console.log(data.index);
         });
-        $("#removeF").click(function () {
-            $.post("im/removeF",{id:$(this).parents(".lis").data("id")},function (data) {
+        $("#view").on("click", ".rf", function () {
+            var that = this;
+            $.post("im/removeFriend", {id: $(this).parents(".lis").data("id")}, function (data) {
                 console.log(data);
+                if (!data.code) {
+                    console.log("id", $(that).parents(".lis").data("id"));
+                    layer.msg("移除成功");
+                    parent.layui.layim.removeList({
+                        id: $(this).parents(".lis").data("id"),
+                        type: 'friend', //
+                    });
+//                    console.log( parent.layui.layim.cache());
+                }
             })
         })
 //        console.log(tem);
-       /* $("#findBtn").on("click", function () {
-            var name = $("#find").val().trim();
-            if (!name) {
-                layer.msg("查找名称不能为空");
-                return;
-            }
-            $.post("/im/find", {name: name}, function (data) {
-                console.log(data);
-                if (data.code) {
-                    layer.msg("服务器出错了");
-                    return;
-                }
-                laytpl(tem).render({num: data.data.length, name: name, list: data.data}, function (html) {
-                    console.log(html);
-                    $("#view").html(html);
-                });
+        /* $("#findBtn").on("click", function () {
+         var name = $("#find").val().trim();
+         if (!name) {
+         layer.msg("查找名称不能为空");
+         return;
+         }
+         $.post("/im/find", {name: name}, function (data) {
+         console.log(data);
+         if (data.code) {
+         layer.msg("服务器出错了");
+         return;
+         }
+         laytpl(tem).render({num: data.data.length, name: name, list: data.data}, function (html) {
+         console.log(html);
+         $("#view").html(html);
+         });
 
-            });
+         });
 
-        });
-        $("#findBtnG").on("click", function () {
-            var name = $("#findG").val().trim();
-            if (!name) {
-                layer.msg("查找名称不能为空");
-                return;
-            }
-            $.post("/im/findG", {name: name}, function (data) {
-                console.log(data);
-                if (data.code) {
-                    layer.msg("服务器出错了");
-                    return;
-                }
-                laytpl(tem).render({num: data.data.length, type: 1, name: name, list: data.data}, function (html) {
-                    console.log(html);
-                    $("#view").html(html);
-                });
+         });
+         $("#findBtnG").on("click", function () {
+         var name = $("#findG").val().trim();
+         if (!name) {
+         layer.msg("查找名称不能为空");
+         return;
+         }
+         $.post("/im/findG", {name: name}, function (data) {
+         console.log(data);
+         if (data.code) {
+         layer.msg("服务器出错了");
+         return;
+         }
+         laytpl(tem).render({num: data.data.length, type: 1, name: name, list: data.data}, function (html) {
+         console.log(html);
+         $("#view").html(html);
+         });
 
-            });
+         });
 
-        });
-        $("#view").on("click", "#addF", function () {
-//            layer.msg("friend");csww
-            var name = $(this).parents(".lis").find(".name").text(),
-                avatar = $(this).parents(".lis").find(".avatar").attr("src");
-            layim.add({
-                type: 'friend' //friend：申请加好友、group：申请加群
-                , username: name //好友昵称，若申请加群，参数为：groupname
-                , avatar: avatar  //头像
-                , submit: function (group, remark, index) { //一般在此执行Ajax和WS，以通知对方
-                    parent.socket.emit("addFriend", {
-                        "id": 76,
-                        "content": "申请添加你为好友",
-                        "uid": parent.layui.layim.cache().mine.username,
-                        "from": parent.layui.layim.cache().mine.username,
-                        "from_group": group,
-                        "type": 1,
-                        "remark": remark,
-                        "href": null,
-                        "read": false,
-                        "to_id": name,
-                        "time": new Date().getTime(),
-                        "user": {
-                            "id": parent.layui.layim.cache().mine.username,
-                            "avatar": parent.layui.layim.cache().mine.avatar,
-                            "username": parent.layui.layim.cache().mine.username,
-                            "sign": parent.layui.layim.cache().mine.sign
-                        }
-                    });
-                    /!* console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
-                     console.log(remark); //获取附加信息*!/
-                    layer.msg("发送成功");
-                    layer.close(index); //关闭改面板
+         });
+         $("#view").on("click", "#addF", function () {
+         //            layer.msg("friend");csww
+         var name = $(this).parents(".lis").find(".name").text(),
+         avatar = $(this).parents(".lis").find(".avatar").attr("src");
+         layim.add({
+         type: 'friend' //friend：申请加好友、group：申请加群
+         , username: name //好友昵称，若申请加群，参数为：groupname
+         , avatar: avatar  //头像
+         , submit: function (group, remark, index) { //一般在此执行Ajax和WS，以通知对方
+         parent.socket.emit("addFriend", {
+         "id": 76,
+         "content": "申请添加你为好友",
+         "uid": parent.layui.layim.cache().mine.username,
+         "from": parent.layui.layim.cache().mine.username,
+         "from_group": group,
+         "type": 1,
+         "remark": remark,
+         "href": null,
+         "read": false,
+         "to_id": name,
+         "time": new Date().getTime(),
+         "user": {
+         "id": parent.layui.layim.cache().mine.username,
+         "avatar": parent.layui.layim.cache().mine.avatar,
+         "username": parent.layui.layim.cache().mine.username,
+         "sign": parent.layui.layim.cache().mine.sign
+         }
+         });
+         /!* console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
+         console.log(remark); //获取附加信息*!/
+         layer.msg("发送成功");
+         layer.close(index); //关闭改面板
 
-                }
-            });
-            /!*layim.setFriendGroup({
-             type: 'friend'
-             , username: $(this).parents(".lis").find(".name").text() //好友昵称，若申请加群，参数为：groupname
-             , avatar: $(this).parents(".lis").find(".avatar").attr("src") //头像
-             , group: layim.cache().friend //获取好友列表数据
-             , submit: function (group, index) {
-             //一般在此执行Ajax和WS，以通知对方已经同意申请
-             //……
-             console.log(parent.socket.id);
-             layer.msg("发送成功");
-             layer.close(index);
-             //同意后，将好友追加到主面板
-             //                    layim.addList(data); //见下文
-             }
-             });*!/
-        });
-        $("#view").on("click", "#addG", function () {
-//            layer.msg("friend");csww
-            var name = $(this).parents(".lis").find(".name").text(),
-                id = $(this).parents(".lis").data("id"),
-                avatar = $(this).parents(".lis").find(".avatar").attr("src");
-            layim.add({
-                type: 'group' //friend：申请加好友、group：申请加群
-                , username: name //好友昵称，若申请加群，参数为：groupname
-                , avatar: avatar  //头像
-                , submit: function (group, remark, index) { //一般在此执行Ajax和WS，以通知对方
-                    $.post("/im/addG", {
-                        "Gid": id,
-                        "groupname": name,
-                        "avatar": avatar,
-                        "user": {
-                            "id": parent.layui.layim.cache().mine.username,
-                            "avatar": parent.layui.layim.cache().mine.avatar,
-                            "username": parent.layui.layim.cache().mine.username,
-                            "sign": parent.layui.layim.cache().mine.sign
-                        }
-                    }, function (res) {
-                        console.log("添加群回复", res);
-                        layer.msg(res.msg);
-                        if (!res.code) {
-                            parent.socket.emit("addGS", {
-                                id: res.data.id,
-                                username: parent.layui.layim.cache().mine.username
-                            });
-                            parent.layui.layim.addList(res.data)
-                        }
+         }
+         });
+         /!*layim.setFriendGroup({
+         type: 'friend'
+         , username: $(this).parents(".lis").find(".name").text() //好友昵称，若申请加群，参数为：groupname
+         , avatar: $(this).parents(".lis").find(".avatar").attr("src") //头像
+         , group: layim.cache().friend //获取好友列表数据
+         , submit: function (group, index) {
+         //一般在此执行Ajax和WS，以通知对方已经同意申请
+         //……
+         console.log(parent.socket.id);
+         layer.msg("发送成功");
+         layer.close(index);
+         //同意后，将好友追加到主面板
+         //                    layim.addList(data); //见下文
+         }
+         });*!/
+         });
+         $("#view").on("click", "#addG", function () {
+         //            layer.msg("friend");csww
+         var name = $(this).parents(".lis").find(".name").text(),
+         id = $(this).parents(".lis").data("id"),
+         avatar = $(this).parents(".lis").find(".avatar").attr("src");
+         layim.add({
+         type: 'group' //friend：申请加好友、group：申请加群
+         , username: name //好友昵称，若申请加群，参数为：groupname
+         , avatar: avatar  //头像
+         , submit: function (group, remark, index) { //一般在此执行Ajax和WS，以通知对方
+         $.post("/im/addG", {
+         "Gid": id,
+         "groupname": name,
+         "avatar": avatar,
+         "user": {
+         "id": parent.layui.layim.cache().mine.username,
+         "avatar": parent.layui.layim.cache().mine.avatar,
+         "username": parent.layui.layim.cache().mine.username,
+         "sign": parent.layui.layim.cache().mine.sign
+         }
+         }, function (res) {
+         console.log("添加群回复", res);
+         layer.msg(res.msg);
+         if (!res.code) {
+         parent.socket.emit("addGS", {
+         id: res.data.id,
+         username: parent.layui.layim.cache().mine.username
+         });
+         parent.layui.layim.addList(res.data)
+         }
 
-                    });
-                    /!* console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
-                     console.log(remark); //获取附加信息*!/
-                    layer.msg("发送成功");
-                    layer.close(index); //关闭改面板
-                }
-            });
-            /!*layim.setFriendGroup({
-             type: 'friend'
-             , username: $(this).parents(".lis").find(".name").text() //好友昵称，若申请加群，参数为：groupname
-             , avatar: $(this).parents(".lis").find(".avatar").attr("src") //头像
-             , group: layim.cache().friend //获取好友列表数据
-             , submit: function (group, index) {
-             //一般在此执行Ajax和WS，以通知对方已经同意申请
-             //……
-             console.log(parent.socket.id);
-             layer.msg("发送成功");
-             layer.close(index);
-             //同意后，将好友追加到主面板
-             //                    layim.addList(data); //见下文
-             }
-             });*!/
-        });*/
+         });
+         /!* console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
+         console.log(remark); //获取附加信息*!/
+         layer.msg("发送成功");
+         layer.close(index); //关闭改面板
+         }
+         });
+         /!*layim.setFriendGroup({
+         type: 'friend'
+         , username: $(this).parents(".lis").find(".name").text() //好友昵称，若申请加群，参数为：groupname
+         , avatar: $(this).parents(".lis").find(".avatar").attr("src") //头像
+         , group: layim.cache().friend //获取好友列表数据
+         , submit: function (group, index) {
+         //一般在此执行Ajax和WS，以通知对方已经同意申请
+         //……
+         console.log(parent.socket.id);
+         layer.msg("发送成功");
+         layer.close(index);
+         //同意后，将好友追加到主面板
+         //                    layim.addList(data); //见下文
+         }
+         });*!/
+         });*/
     });
     var msg = {
         "id": 76,
