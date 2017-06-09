@@ -318,6 +318,13 @@
                             if (res.code != 0) {
                                 return layer.msg(res.msg);
                             }
+                            parent.socket.emit("agreeF",{
+                                uid: uid //对方用户ID
+                                , from_group: from_group //对方设定的好友分组
+                                , group: group //我设定的好友分组
+                                , sign: user.sign //好友签名
+                                , avatar: user.avatar //好友头像
+                            })
 
                             /* //将好友追加到主面板
                              parent.layui.layim.addList({

@@ -119,7 +119,6 @@ io.on('connection', function (socket) {
                 } else {
                     console.log("不在线");
                     // Msg[data.uid].push(data);
-
                 }
             });
         });
@@ -135,6 +134,9 @@ io.on('connection', function (socket) {
             , type: "group"
             , content: data.username+ '加入群聊!'
         })
+    });
+    socket.on("agreeF",function (data) {
+
     })
 });
 function handERr(res,msg) {

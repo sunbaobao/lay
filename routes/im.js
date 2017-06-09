@@ -384,15 +384,13 @@ router.post("/agreeFriend", function (req, res, next) {
     });
     console.log(req.body.uid);
     thisM.save();
-    Msg.find({from: req.body.uid, from_group: req.body.from_group}, function (err, mesages) {
+    Msg.find({from: req.body.uid, from_group: req.body.from_group}, function (err, messages) {
         if (err) res.json({code: 1, msg: "查询出错"});
-        for (x in mesages) {
-            mesages[x].type = "11";
-            mesages[x].save();
+        for (let x=0;x<messages.length;i++) {
+            messages[x].type = "11";
+            messages[x].save();
         }
-
-    })
-
+    });
 });
 router.post("/createGroup", function (req, res, next) {
     let q = User.find({username: req.session.user.username}, function (err, users) {
