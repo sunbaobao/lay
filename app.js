@@ -32,7 +32,7 @@ app.use(session({
         /* db: settings.db,
          host: settings.host,
          port: settings.port,*/
-        url: 'mongodb://client1:150sun@localhost/blog'
+        url: 'mongodb://client:150sun@localhost/blog'
     }),
     resave: false,
     saveUninitialized: true

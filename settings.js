@@ -6,7 +6,7 @@ module.exports = {
     db: 'blog',
     host: 'localhost',
     port: 27017,
-    user:"client1",
+    user:"client",
     password:"150sun"
 };
 
