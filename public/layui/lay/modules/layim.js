@@ -381,7 +381,7 @@ layui.define(['layer', 'laytpl', 'upload'], function(exports){
                 if(!href) return str;
                 return '<a href="'+ href +'" target="_blank">'+ (text||href) +'</a>';
             }).replace(html(), '\<$1 $2\>').replace(html('/'), '\</$1\>') //转移HTML代码
-            .replace(/\n/g, '<br>') //转义换行
+            .replace(/\n/g, '<br>'); //转义换行
         return content;
     };
 
@@ -1677,7 +1677,6 @@ layui.define(['layer', 'laytpl', 'upload'], function(exports){
                     });
                 }
             });
-
             $(document).off('mousedown', events.faceHide).on('mousedown', events.faceHide);
             $(window).off('resize', events.faceHide).on('resize', events.faceHide);
             stope(e);

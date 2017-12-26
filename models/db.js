@@ -7,13 +7,22 @@
     Server = require('mongodb').Server;
 module.exports = new Db(settings.db, new Server(settings.host, settings.port),
  {safe: true});*/
+const db_info = require('../settings');
 let mongoose = require('mongoose'),
     DB_URL = 'mongodb://localhost:27017/blog';
-    mongoose.Promise = global.Promise;
+console.log(DB_URL);
+var options = {
+    db: { native_parser: true },
+    server: { poolSize: 5 },
+    replset: { rs_name: 'myReplicaSetName' },
+    user: 'client1',
+    pass: '150sun'
+}
+mongoose.Promise = global.Promise;
 /**
  * 连接
  */
-mongoose.connect(DB_URL);
+mongoose.connect(DB_URL,options);
 
 /**
  * 连接成功

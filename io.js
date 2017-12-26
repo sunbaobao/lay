@@ -95,7 +95,7 @@ io.on('connection', function (socket) {
                 }
             }
             console.log('用户ID=' + outid + '下线了');
-            let out = {id: outid, num: usernum - 1}
+            let out = {id: outid, num: usernum - 1};
             io.sockets.emit('out', out);
         });
     socket.on('addFriend', function (data) {
