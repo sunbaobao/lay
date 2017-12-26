@@ -15,7 +15,7 @@ var options = {
     db: { native_parser: true },
     server: { poolSize: 5 },
     replset: { rs_name: 'myReplicaSetName' },
-    user: 'client1',
+    user: 'client',
     pass: '150sun'
 }
 mongoose.Promise = global.Promise;
