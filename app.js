@@ -11,6 +11,9 @@ const routes = require('./routes/index');
 const im=require("./routes/im");
 const settings = require('./settings');
 const users = require('./routes/users');
+const common=require("./routes/common");
+const jwt=require("express-jwt");
+const auth=require("./middlewares/jwtAuth");
 const app = express();
 
 // view engine setup
@@ -37,9 +40,20 @@ app.use(session({
     resave: false,
     saveUninitialized: true
 }));
+/*app.use((req, res, next) => {
+    if (req.path.indexOf('/api') === -1) {
+        return res.render('index')
+    }
+    return next()
+});*/
+app.use(/^\/api/, [
+    jwt({secret: settings.secret}),
+    auth.verifyToken.bind(auth)
+]);
 app.use('/', routes);
 app.use('/users', users);
 app.use('/im', im);
+app.use('/common', common);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     let err = new Error('Not Found');

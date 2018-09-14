@@ -1,4 +1,4 @@
-var mongoose = require('./db');
+var mongoose = require('../db/mongo');
 var Schema = mongoose.Schema;
 var Post = new Schema({
     name: String,

@@ -247,6 +247,7 @@ router.post("/find", function (req, res, next) {
 });
 router.post("/findG", checkLogin);
 router.post("/findG", function (req, res, next) {
+
     if (!req.body.name) {
         req.flash('error', "不能为空");
         return res.redirect('/');

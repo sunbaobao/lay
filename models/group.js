@@ -1,7 +1,7 @@
 /**
  * Created by uu on 2017/4/25.
  */
-let mongoose = require('./db');
+let mongoose = require('../db/mongo');
 let Schema = mongoose.Schema;
 let Group = new Schema({
     id: String,

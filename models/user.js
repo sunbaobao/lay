@@ -1,7 +1,7 @@
 /**
  * Created by Administrator on 2016/10/6.
  */
-let mongoose = require('./db');
+let mongoose = require('../db/mongo');
 let Schema = mongoose.Schema;
 let UserSchema = new Schema({
     username: {type: String},                    //用户账号

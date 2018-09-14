@@ -1,7 +1,7 @@
 /**
  * Created by uu on 2017/4/24.
  */
-const mongoose = require('./db');
+const mongoose = require('../db/mongo');
 const Schema = mongoose.Schema;
 let MsgSchema = new Schema({
     id:String,
