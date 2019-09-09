@@ -2,8 +2,8 @@
 <project version="4">
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$" libraries="{lay/node_modules}" />
-    <file url="PROJECT" libraries="{lay/node_modules, node-DefinitelyTyped}" />
+    <file url="file://$PROJECT_DIR$/vue_demo/my_project" libraries="{lay/vue_demo/my_project/node_modules}" />
+    <file url="PROJECT" libraries="{@types/express, @types/node, jquery-DefinitelyTyped, lay/node_modules, lay/vue_demo/my_project/node_modules, node-DefinitelyTyped}" />
     <includedPredefinedLibrary name="Node.js Core" />
-    <includedPredefinedLibrary name="WebGL" />
   </component>
 </project>

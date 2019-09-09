@@ -2,7 +2,7 @@
 
  @Title: Layui
  @Description：经典模块化前端框架
- @Site: www.layui.com
+ @Site: www.js.layui.com
  @Author: 贤心
  @License：MIT
 
