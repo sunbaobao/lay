@@ -25,3 +25,5 @@ setTimeout(() => {
         console.log('setImmediate2')
     })
 }, 0);
+console.log(/^(\/user\/(?!sign\/up|sign\/in)|\/api).+$/.test("/user/sign/in"))
+
