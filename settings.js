@@ -1,10 +1,13 @@
 /**
  * Created by Administrator on 2016/10/5.
  */
+// db.createUser({ user: "client", pwd: "150sun", roles: [{ role: "readWrite", db: "blog" }] })
+
+
 module.exports = {
     cookieSecret: 'myblog',
     db: 'blog',
-    host: 'localhost',
+    host: '129.28.184.17',
     port: 27017,
     user:"client",
     password:"150sun",
@@ -14,6 +17,14 @@ module.exports = {
         },
         production: {
             connectionString: 'redis://127.0.0.1:6379',
+        }
+    },
+    mongodb:{
+        development: {
+            connectionString: '129.28.184.17:27017'
+        },
+        production: {
+            connectionString: '129.28.184.17:27017',
         }
     },
     secret: '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',

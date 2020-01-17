@@ -151,37 +151,29 @@
                 $.ajax({
                     url: "/im/find",
                     type: "POST",
-                    data: { name: name },
+                    data: { name: 'name' },
                     headers: {
                         'Content-Type': "application/x-www-form-urlencoded;charset=utf-8"
                     },
                     success: function (data) {
-                        console.log(data);
-                        if (data.code) {
-                            layer.msg("服务器出错了");
-                            return;
-                        }
-                        laytpl(tem).render({ num: data.data.length, name: name, list: data.data }, function (html) {
-                            console.log(html);
-                            $("#view").html(html);
-                        });
+
                     },
                     error: function (err) {
                         console.log(err)
                     }
                 })
-                /* $.post("/im/find", { name: name }, function (data) {
-                    console.log(data);
-                    if (data.code) {
-                        layer.msg("服务器出错了");
-                        return;
-                    }
-                    laytpl(tem).render({ num: data.data.length, name: name, list: data.data }, function (html) {
-                        console.log(html);
-                        $("#view").html(html);
-                    });
+                // $.post("/im/find", { name: name }, function (data) {
+                //     console.log(data);
+                //     if (data.code) {
+                //         layer.msg("服务器出错了");
+                //         return;
+                //     }
+                //     laytpl(tem).render({ num: data.data.length, name: name, list: data.data }, function (html) {
+                //         console.log(html);
+                //         $("#view").html(html);
+                //     });
 
-                }); */
+                // });
 
             });
             $("#findBtnG").on("click", function () {

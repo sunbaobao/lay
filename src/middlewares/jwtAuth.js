@@ -48,7 +48,6 @@ class Middlewares {
      */
     expireToken(headers) {
         const token = this.getToken(headers);
-
         if (token != null) {
             this.redisClient.set(token, true);
             this.redisClient.expire(token, this.TOKEN_EXPIRATION_SEC)

@@ -300,7 +300,7 @@ router.get("/getUnmsg", function (req, res, next) {
 });
 router.post("/message/read", function (req, res, next) {
     Msg.find({ to_id: req.session.user.username }, function (err, messages) {
-        for (let x in messages) {
+        for (x in messages) {
             messages[x].read = true;
             messages[x].save();
         }

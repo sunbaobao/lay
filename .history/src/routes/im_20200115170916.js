@@ -3,7 +3,7 @@
  */
 const express = require('express');
 const router = express.Router();
-import User from '../models/user.js';
+import User from  '../models/user.js';
 const Msg = require("../models/msg");
 const Group = require("../models/group");
 const assert = require("assert");
@@ -141,7 +141,7 @@ router.get('/getList', function (req, res, next) {
         return res.redirect('/login');
     }
     let user = req.session.user;
-    User.findOne({ username: user.username }, function (err, user) {
+    User.findOne({username: user.username}, function (err, user) {
         if (!user.avatar) {
             user.avatar = "images/avatar.jpg";
         }
@@ -171,7 +171,7 @@ router.post("/socketID", function (req, res, next) {
     var name = req.session.user.username;
     var id = req.body.ID;
     // console.log(name,id);
-    User.findOne({ username: name }, function (err, user) {
+    User.findOne({username: name}, function (err, user) {
         if (err) {
             req.flash('error', err);
             return res.redirect('/');
@@ -196,7 +196,7 @@ router.post("/socketID", function (req, res, next) {
 });
 router.post("/sign", function (req, res, next) {
     var name = req.session.user.username;
-    User.findOne({ username: name }, function (err, user) {
+    User.findOne({username: name}, function (err, user) {
         if (err) handlErr(err, req, res);
         if (!user) {
             req.flash('error', "为遭到user");
@@ -226,14 +226,13 @@ router.post("/find", function (req, res, next) {
         console.log(req)
         req.flash('error', '未找到name');
         return res.json({
-            msg: "参数为找到"
+            msg:"参数为找到"
         });
     }
     let name = req.body.name;
-    let data = { code: 0, data: [] };
-    console.log(name)
-    let re = new RegExp(name, "g");
-    User.find({ username: re }, function (err, users) {
+    let data = {code: 0, data: []};
+    const re = new RegExp(name, "g");
+    User.find({username: re}, function (err, users) {
         if (err) return handlErr(err);
         for (let user in users) {
             console.log(user);
@@ -253,14 +252,14 @@ router.post("/findG", checkLogin);
 router.post("/findG", function (req, res, next) {
     if (!req.body.name) {
         req.flash('error', "不能为空");
-        return res.json({
-            msg: "参数为找到"
+       return   res.json({
+            msg:"参数为找到"
         });
     }
     let name = req.body.name;
-    let data = { code: 0, data: [] };
+    let data = {code: 0, data: []};
     const re = new RegExp(name, "g");
-    Group.find({ groupname: re }, function (err, groups) {
+    Group.find({groupname: re}, function (err, groups) {
         if (err) return handlErr(err);
         for (let group in groups) {
             console.log(group);
@@ -278,8 +277,8 @@ router.post("/findG", function (req, res, next) {
 });
 router.get("/getmsg", checkLogin);
 router.get("/getmsg", function (req, res, next) {
-    Msg.find({ to_id: req.session.user.username }, function (err, messages) {
-        if (err) res.json({ code: 1, msg: "查询出错" });
+    Msg.find({to_id: req.session.user.username}, function (err, messages) {
+        if (err) res.json({code: 1, msg: "查询出错"});
         res.json({
             code: 0,
             pages: 1,
@@ -289,8 +288,8 @@ router.get("/getmsg", function (req, res, next) {
 
 });
 router.get("/getUnmsg", function (req, res, next) {
-    Msg.find({ to_id: req.session.user.username, read: false }, function (err, messages) {
-        if (err) res.json({ code: 1, msg: "查询出错" });
+    Msg.find({to_id: req.session.user.username, read: false}, function (err, messages) {
+        if (err) res.json({code: 1, msg: "查询出错"});
         res.json({
             code: 0,
             msg: messages.length
@@ -299,12 +298,12 @@ router.get("/getUnmsg", function (req, res, next) {
 
 });
 router.post("/message/read", function (req, res, next) {
-    Msg.find({ to_id: req.session.user.username }, function (err, messages) {
-        for (let x in messages) {
+    Msg.find({to_id: req.session.user.username}, function (err, messages) {
+        for (x in messages) {
             messages[x].read = true;
             messages[x].save();
         }
-        res.json({ code: 0, "msg": "s" })
+        res.json({code: 0, "msg": "s"})
     });
 
 });
@@ -314,12 +313,12 @@ router.post("/agreeFriend", function (req, res, next) {
      ,group: group //我设定的好友分组*/
     console.log(req.body.group);
     if (req.session.user.username === req.body.uid) {
-        res.json({ code: 1, msg: "不能添加自己为好友" });
+        res.json({code: 1, msg: "不能添加自己为好友"});
         return;
     }
     //添加到好友列表
-    User.find({ username: req.session.user.username }, function (err, users) {
-        if (err) res.json({ code: 1, msg: "数据库查询错误" });
+    User.find({username: req.session.user.username}, function (err, users) {
+        if (err) res.json({code: 1, msg: "数据库查询错误"});
         let user = users[0];
         // console.log(user);
         for (let i in user.friend) {
@@ -327,7 +326,7 @@ router.post("/agreeFriend", function (req, res, next) {
             if (user.friend[i].id.toString() === req.body.group) {
                 for (let x in user.friend[i].list) {
                     if (user.friend[i].list[x].id === req.body.uid) {
-                        res.json({ code: 0, msg: "已添加好友" });
+                        res.json({code: 0, msg: "已添加好友"});
                         return;
                     }
                 }
@@ -350,8 +349,8 @@ router.post("/agreeFriend", function (req, res, next) {
                 break;
             }
         }
-        User.findOne({ username: uid }, function (err, user) {
-            if (err) res.json({ code: 1, msg: "数据库查询错误" });
+        User.findOne({username: uid}, function (err, user) {
+            if (err) res.json({code: 1, msg: "数据库查询错误"});
             for (let i in user.friend) {
                 console.log(user.friend[i].id.toString(), req.body.from_group);
                 if (user.friend[i].id.toString() === req.body.from_group) {
@@ -370,7 +369,7 @@ router.post("/agreeFriend", function (req, res, next) {
         });
         // return new Promise()
     });
-    //    对方账户添加到好友列表
+//    对方账户添加到好友列表
     console.log(req.body.uid);
     let uid = req.body.uid;
     let thisM = new Msg({
@@ -390,17 +389,17 @@ router.post("/agreeFriend", function (req, res, next) {
     });
     console.log(req.body.uid);
     thisM.save();
-    Msg.find({ from: req.body.uid, from_group: req.body.from_group }, function (err, messages) {
-        if (err) res.json({ code: 1, msg: "查询出错" });
-        for (let x = 0; x < messages.length; i++) {
+    Msg.find({from: req.body.uid, from_group: req.body.from_group}, function (err, messages) {
+        if (err) res.json({code: 1, msg: "查询出错"});
+        for (let x=0;x<messages.length;i++) {
             messages[x].type = "11";
             messages[x].save();
         }
     });
 });
 router.post("/createGroup", function (req, res, next) {
-    let q = User.find({ username: req.session.user.username }, function (err, users) {
-        if (err) res.json({ code: 1, msg: "数据库查询错误" });
+    let q = User.find({username: req.session.user.username}, function (err, users) {
+        if (err) res.json({code: 1, msg: "数据库查询错误"});
         let user = users[0];
         // console.log(user);
         user.group = user.group || [];
@@ -420,104 +419,102 @@ router.post("/createGroup", function (req, res, next) {
         list: [req.session.user]
     });
     newGroup.save(function (err) {
-        if (err) res.json({ code: 1, msg: "数据库存入错误" });
+        if (err) res.json({code: 1, msg: "数据库存入错误"});
     });
-    res.json({ code: 0, msg: "创建成功" });
+    res.json({code: 0, msg: "创建成功"});
 
 });
 router.get("/addG", checkLogin);
 router.post("/addG", function (req, res, next) {
     /*console.log(req.body);
      res.json(req.body);*/
-    let p = new Promise(function (resolve, reject) {
-        Group.findOne({ id: req.body.Gid }, function (err, group) {
-            if (err) { reject(err); console.log("err"); return }
-            console.log("1", req.body);
-            group.list = group.list || [];
-            for (let x in group.list) {
-                if (group.list[x] === null) {
-                    continue;
-                }
-                if (group.list[x].username === req.session.user.username) {
-                    res.json({ code: 1, msg: "已在群中不可再次加入" });
-                    return;
-                }
-            }
-            let { username, avatar, sign } = req.session.user;
-            group.list.push({
-                id: username,
-                username: username,
-                avatar: avatar,
-                sign: sign
-            });
-            group.markModified("list");
-            group.save();
-            console.log("Group保存成功");
-            resolve(group);
-        });
-    });
+  let p=new Promise(function (resolve, reject) {
+      Group.findOne({id: req.body.Gid}, function (err, group) {
+          if (err) {reject(err); console.log("err"); return}
+          console.log("1", req.body);
+          group.list=group.list||[];
+          for (let x in group.list) {
+              if(group.list[x]===null){
+                  continue;
+              }
+              if (group.list[x].username === req.session.user.username) {
+                  res.json({code: 1, msg: "已在群中不可再次加入"});
+                  return;
+              }
+          }
+          let {username,avatar,sign}=req.session.user;
+          group.list.push({
+              id:username,
+              username:username,
+              avatar:avatar,
+              sign:sign
+          });
+          group.markModified("list");
+          group.save();
+          console.log("Group保存成功");
+          resolve(group);
+      });
+  });
 
     // assert.ok(p instanceof require('mpromise'));
 
     p.then(function (doc) {
         // console.log("doc",doc);
-        User.findOne({ username: req.session.user.username }, function (err, user) {
-            if (err) handErrJson(err, req, res);
-            user.group = user.group || [];
-            for (let i in user.group) {
-                if (user.group[i].id === req.body.Gid) {
-                    //    在群中
-                    res.json({ code: 2, msg: "已在群中不可再次加入" });
-                    return;
-                }
-            }
-            user.group.push({
-                "groupname": req.body.groupname,
-                "id": req.body.Gid,
-                "avatar": req.body.avatar
-            });
-            user.markModified("group");
-            user.save();
-            res.json({
-                code: 0, msg: "添加群组成功", data: {
-                    type: 'group' //列表类型，只支持friend和group两种
-                    , avatar: doc.avatar//群组头像
-                    , groupname: doc.groupname //群组名称
-                    , id: doc.id //群组id
-                }
-            });
-        });
-    }, function (err) {
+      User.findOne({username: req.session.user.username}, function (err, user) {
+       if (err) handErrJson(err,req,res);
+          user.group = user.group || [];
+          for (let i in user.group) {
+              if (user.group[i].id === req.body.Gid) {
+                  //    在群中
+                  res.json({code: 2, msg: "已在群中不可再次加入"});
+                  return;
+              }
+          }
+          user.group.push({
+              "groupname": req.body.groupname,
+              "id": req.body.Gid,
+              "avatar": req.body.avatar
+          });
+          user.markModified("group");
+          user.save();
+          res.json({code: 0, msg: "添加群组成功",data:{
+              type: 'group' //列表类型，只支持friend和group两种
+              ,avatar: doc.avatar//群组头像
+              ,groupname: doc.groupname //群组名称
+              ,id: doc.id //群组id
+          }});
+      });
+  },function (err) {
         console.log(err);
     })
 
 
 });
-router.get("/getMembers", function (req, res, next) {
-    let id = req.query.id;
-    Group.findOne({ id: id }, function (err, group) {
-        if (err) { handErrJson(err, req, res); return };
-        let list = group.list || [];
-        for (let i in list) {
-            if (list[i] == null) {
-                console.log("null");
-                list.splice(i, 1);
-            }
-        }
-        res.json({ code: 0, msg: "", data: { list: list } });
-    })
+router.get("/getMembers",function (req, res, next) {
+   let id=req.query.id;
+   Group.findOne({id:id},function (err, group) {
+       if(err){handErrJson(err,req,res);return};
+       let list=group.list||[];
+       for (let i in list){
+          if(list[i]==null){
+              console.log("null");
+              list.splice(i,1);
+          }
+       }
+       res.json({code:0,msg:"",data:{list:list}});
+   })
 });
 router.post("/removeFriend", function (req, res, next) {
     /*uid: uid //对方用户ID
      ,from_group: from_group //对方设定的好友分组
      ,group: group //我设定的好友分组*/
-    console.log("removeFriend", req.body.id);
-    removeFriendAsync(req.session.user.username, req.body.id).then(function (user) {
+    console.log("removeFriend",req.body.id);
+    removeFriendAsync(req.session.user.username,req.body.id).then(function (user) {
         //    对方账户删除到好友列表
-        return removeFriendAsync(req.body.id, req.session.user.username);
+       return removeFriendAsync(req.body.id,req.session.user.username);
     }).then(function (data) {
         let thisM = new Msg({
-            "content": "你与" + req.session.user.username + "已不是好友",
+            "content":"你与"+req.session.user.username + "已不是好友",
             "uid": 168,
             "from": null,
             "to_id": req.body.id,
@@ -532,12 +529,12 @@ router.post("/removeFriend", function (req, res, next) {
             }
         });
         thisM.save(function (err) {
-            if (err) {
-                console.log("消息存入错误");
+            if(err){
+              console.log("消息存入错误");
             }
         });
-        res.json({ code: 0, msg: "存入成功" });
-    }, function (err) {
+        res.json({code:0,msg:"存入成功"});
+    },function (err) {
         console.log(err);
     });
 });
@@ -554,28 +551,28 @@ function handlErr(err, req, res) {
 }
 function handErrJson(err, req, res) {
     console.log(err);
-    return res.json({ code: 1, msg: err });
+    return res.json({code: 1, msg: err});
 }
-function removeFriendAsync(uid, fid) {
+function removeFriendAsync(uid,fid) {
     return new Promise(function (resolve, reject) {
-        User.findOne({ username: uid }, function (err, user) {
-            if (err) { reject(err); return; }
+        User.findOne({username: uid}, function (err, user) {
+            if (err) {reject(err); return;}
             console.log(user);
-            for (let i = 0; i < user.friend.length; i++) {
+            for (let i=0;i<user.friend.length;i++){
                 // console.log(user.friend);
-                for (let j = 0; j < user.friend[i].list.length; j++) {
+                for(let  j=0;j<user.friend[i].list.length;j++){
                     // console.log(i);
                     if (user.friend[i].list[j].id.toString() === fid) {
-                        user.friend[i].list.splice(j, 1);
+                        user.friend[i].list.splice(j,1);
                         break;
                     }
                 }
             }
             user.markModified("friend");
             user.save(function (err) {
-                if (err) reject(err);
+                if (err)reject(err);
             });
-            console.log("removeFriend", "保存成功");
+            console.log("removeFriend","保存成功");
             resolve(user);
         });
     });

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Apple devices fullscreen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <!-- Apple devices fullscreen -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="layui/css/layui.css">
+    <link rel="stylesheet" href="stylesheets/find.css">
+    <style>
+        .layim-msgbox {
+            margin: 15px;
+        }
+
+        .layim-msgbox li {
+            position: relative;
+            margin-bottom: 10px;
+            padding: 0 130px 10px 60px;
+            padding-bottom: 10px;
+            line-height: 22px;
+            border-bottom: 1px dotted #e2e2e2;
+        }
+
+        .layim-msgbox .layim-msgbox-tips {
+            margin: 0;
+            padding: 10px 0;
+            border: none;
+            text-align: center;
+            color: #999;
+        }
+
+        .layim-msgbox .layim-msgbox-system {
+            padding: 0 10px 10px 10px;
+        }
+
+        .layim-msgbox li p span {
+            padding-left: 5px;
+            color: #999;
+        }
+
+        .layim-msgbox li p em {
+            font-style: normal;
+            color: #FF5722;
+        }
+
+        .layim-msgbox-avatar {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 50px;
+            height: 50px;
+        }
+
+        .layim-msgbox-user {
+            padding-top: 5px;
+        }
+
+        .layim-msgbox-content {
+            margin-top: 3px;
+        }
+
+        .layim-msgbox .layui-btn-small {
+            padding: 0 15px;
+            margin-left: 5px;
+        }
+
+        .layim-msgbox-btn {
+            position: absolute;
+            right: 0;
+            top: 12px;
+            color: #999;
+        }
+    </style>
+    <title>Title</title>
+</head>
+<body>
+<script src="layui/layui.js"></script>
+<div class="layui-tab layui-tab-card" style="margin-top: 0;">
+    <ul class="layui-tab-title">
+        <li class="layui-this">搜人</li>
+        <li>搜群</li>
+    </ul>
+    <div class="layui-tab-content" style="height: 100px;">
+        <div class="layui-tab-item layui-show">
+            <div class="find">
+                <div class="findW">
+                    <input type="text" id="find"> <a class="layui-btn layui-icon" id="findBtn" href="javascript:;">&#xe615;</a>
+                </div>
+            </div>
+        </div>
+        <div class="layui-tab-item">
+            <div class="find">
+                <div class="findW">
+                    <input type="text" id="findG"> <a class="layui-btn layui-icon" id="findBtnG" href="javascript:;">&#xe615;</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<div id="view"></div>
+<template type="text/html" id="template">
+    <div class="nav">
+        <p>搜索：{{d.name}}</p>
+    </div>
+    <p class="p10">找到：{{d.num }}个</p>
+    <ul class="lisW">
+        {{# layui.each(d.list, function(index, item){ }}
+        <li class="lis" data-id="{{ item.id }}">
+            <div class="imgW"><img src=" {{ item.avatar }} " alt="" class="avatar">
+            </div>
+            <div class="right">
+                <p class="name">{{item.name}}</p>
+                <span>&nbsp;{{item.sign}}</span>
+            </div>
+            {{# if(d.type){ }}
+            <a href="javascript:;" class="layui-btn" id="addG">加入该群</a>
+            {{# }else{ }}
+            <a href="javascript:;" class="layui-btn" id="addF">加为好友</a>
+            {{# } }}
+        </li>
+        {{# }); }}
+    </ul>
+</template>
+<script>
+    layui.use(['layim', 'flow', "laytpl", "element"], function () {
+        var layim = layui.layim
+            , layer = layui.layer
+            , laytpl = layui.laytpl
+            , $ = layui.jquery
+            , ele = layui.element()
+            , flow = layui.flow;
+        var tem = $("#template").html();
+//        console.log(tem);
+        $("#findBtn").on("click", function () {
+            var name = $("#find").val().trim();
+            if (!name) {
+                layer.msg("查找名称不能为空");
+                return;
+            }
+            $.post("/im/find", {name: name}, function (data) {
+                console.log(data);
+                if (data.code) {
+                    layer.msg("服务器出错了");
+                    return;
+                }
+                laytpl(tem).render({num: data.data.length, name: name, list: data.data}, function (html) {
+                    console.log(html);
+                    $("#view").html(html);
+                });
+
+            });
+
+        });
+        $("#findBtnG").on("click", function () {
+            var name = $("#findG").val().trim();
+            if (!name) {
+                layer.msg("查找名称不能为空");
+                return;
+            }
+            $.post("/im/findG", {name: name}, function (data) {
+                console.log(data);
+                if (data.code) {
+                    layer.msg("服务器出错了");
+                    return;
+                }
+                laytpl(tem).render({num: data.data.length, type: 1, name: name, list: data.data}, function (html) {
+                    console.log(html);
+                    $("#view").html(html);
+                });
+
+            });
+
+        });
+        $("#view").on("click", "#addF", function () {
+//            layer.msg("friend");csww
+            var name = $(this).parents(".lis").find(".name").text(),
+                avatar = $(this).parents(".lis").find(".avatar").attr("src");
+            layim.add({
+                type: 'friend' //friend：申请加好友、group：申请加群
+                , username: name //好友昵称，若申请加群，参数为：groupname
+                , avatar: avatar  //头像
+                , submit: function (group, remark, index) { //一般在此执行Ajax和WS，以通知对方
+                    parent.socket.emit("addFriend", {
+                        "id": 76,
+                        "content": "申请添加你为好友",
+                        "uid": parent.layui.layim.cache().mine.username,
+                        "from": parent.layui.layim.cache().mine.username,
+                        "from_group": group,
+                        "type": 1,
+                        "remark": remark,
+                        "href": null,
+                        "read": false,
+                        "to_id": name,
+                        "time": new Date().getTime(),
+                        "user": {
+                            "id": parent.layui.layim.cache().mine.username,
+                            "avatar": parent.layui.layim.cache().mine.avatar,
+                            "username": parent.layui.layim.cache().mine.username,
+                            "sign": parent.layui.layim.cache().mine.sign
+                        }
+                    });
+                    /* console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
+                     console.log(remark); //获取附加信息*/
+                    layer.msg("发送成功");
+                    layer.close(index); //关闭改面板
+
+                }
+            });
+            /*layim.setFriendGroup({
+             type: 'friend'
+             , username: $(this).parents(".lis").find(".name").text() //好友昵称，若申请加群，参数为：groupname
+             , avatar: $(this).parents(".lis").find(".avatar").attr("src") //头像
+             , group: layim.cache().friend //获取好友列表数据
+             , submit: function (group, index) {
+             //一般在此执行Ajax和WS，以通知对方已经同意申请
+             //……
+             console.log(parent.socket.id);
+             layer.msg("发送成功");
+             layer.close(index);
+             //同意后，将好友追加到主面板
+             //                    layim.addList(data); //见下文
+             }
+             });*/
+        });
+        $("#view").on("click", "#addG", function () {
+//            layer.msg("friend");csww
+            var name = $(this).parents(".lis").find(".name").text(),
+                id = $(this).parents(".lis").data("id"),
+                avatar = $(this).parents(".lis").find(".avatar").attr("src");
+            layim.add({
+                type: 'group' //friend：申请加好友、group：申请加群
+                , username: name //好友昵称，若申请加群，参数为：groupname
+                , avatar: avatar  //头像
+                , submit: function (group, remark, index) { //一般在此执行Ajax和WS，以通知对方
+                    $.post("/im/addG", {
+                        "Gid": id,
+                        "groupname": name,
+                        "avatar": avatar,
+                        "user": {
+                            "id": parent.layui.layim.cache().mine.username,
+                            "avatar": parent.layui.layim.cache().mine.avatar,
+                            "username": parent.layui.layim.cache().mine.username,
+                            "sign": parent.layui.layim.cache().mine.sign
+                        }
+                    }, function (res) {
+                        console.log("添加群回复", res);
+                        layer.msg(res.msg);
+                        if (!res.code) {
+                            parent.socket.emit("addGS", {
+                                id: res.data.id,
+                                username: parent.layui.layim.cache().mine.username
+                            });
+                            parent.layui.layim.addList(res.data)
+                        }
+
+                    });
+                    /* console.log(group); //获取选择的好友分组ID，若为添加群，则不返回值
+                     console.log(remark); //获取附加信息*/
+                    layer.msg("发送成功");
+                    layer.close(index); //关闭改面板
+                }
+            });
+            /*layim.setFriendGroup({
+             type: 'friend'
+             , username: $(this).parents(".lis").find(".name").text() //好友昵称，若申请加群，参数为：groupname
+             , avatar: $(this).parents(".lis").find(".avatar").attr("src") //头像
+             , group: layim.cache().friend //获取好友列表数据
+             , submit: function (group, index) {
+             //一般在此执行Ajax和WS，以通知对方已经同意申请
+             //……
+             console.log(parent.socket.id);
+             layer.msg("发送成功");
+             layer.close(index);
+             //同意后，将好友追加到主面板
+             //                    layim.addList(data); //见下文
+             }
+             });*/
+        });
+    });
+    var msg = {
+        "id": 76,
+        "content": "申请添加你为好友",
+        "uid": 168,
+        "from": 166488,
+        "from_group": 0,
+        "type": 1,
+        "remark": "有问题要问",
+        "href": null,
+        "read": 1,
+        "time": "刚刚",
+        "user": {
+            "id": 166488,
+            "avatar": "//q.qlogo.cn/qqapp/101235792/B704597964F9BD0DB648292D1B09F7E8/100",
+            "username": "李彦宏",
+            "sign": null
+        }
+    }
+</script>
+</body>
+</html>

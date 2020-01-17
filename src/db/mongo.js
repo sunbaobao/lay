@@ -10,7 +10,7 @@ module.exports = new Db(settings.db, new Server(settings.host, settings.port),
 const db_info = require('../../settings');
 const mongoose = require('mongoose'),
     DB_URL = 'mongodb://' +db_info.user+':'+db_info.password+
-        '@localhost:27017/blog';
+        '@'+db_info.mongodb.development.connectionString+'/blog';
 console.log(DB_URL);
 var options = {
     useNewUrlParser: true,

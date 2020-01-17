@@ -231,8 +231,7 @@ router.post("/find", function (req, res, next) {
     }
     let name = req.body.name;
     let data = { code: 0, data: [] };
-    console.log(name)
-    let re = new RegExp(name, "g");
+    const re = new RegExp(name, "g");
     User.find({ username: re }, function (err, users) {
         if (err) return handlErr(err);
         for (let user in users) {
@@ -300,7 +299,7 @@ router.get("/getUnmsg", function (req, res, next) {
 });
 router.post("/message/read", function (req, res, next) {
     Msg.find({ to_id: req.session.user.username }, function (err, messages) {
-        for (let x in messages) {
+        for (x in messages) {
             messages[x].read = true;
             messages[x].save();
         }
