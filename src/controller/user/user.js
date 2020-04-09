@@ -1,15 +1,15 @@
-import request from 'request'
-import config from '../../../settings'
-import jwt from '../../middlewares/jwt'
+import request from 'request';
+import config from '../../../settings';
+import jwt from '../../middlewares/jwt';
 // import WXBizDataCrypt from '../common/WXBizDataCrypt'
-import user from '../../models/user'
-import jwtAuth from '../../middlewares/jwtAuth'
-import jwtP from 'jsonwebtoken'
+import user from '../../models/user';
+import jwtAuth from '../../middlewares/jwtAuth';
+import jwtP from 'jsonwebtoken';
 
 class Ctrl {
     constructor() {
         this.init();
-        this.signIn = this.signIn.bind(this)
+        this.signIn = this.signIn.bind(this);
 
     }
 
@@ -25,12 +25,12 @@ class Ctrl {
      * 封装request请求
      */
     requestAsync(url) {
-        return new Promise((reslove, reject) => {
+        return new Promise((resolve, reject) => {
             request({url: url}, (err, res, body) => {
                 if (err) return reject(err);
-                return reslove(body)
-            })
-        })
+                return resolve(body);
+            });
+        });
     }
 
     /**
@@ -40,7 +40,7 @@ class Ctrl {
         const appid = config.wechat.appid;
         const secret = config.wechat.secret;
         const url = `https://api.weixin.qq.com/sns/jscode2session?appid=${appid}&secret=${secret}&js_code=${code}&grant_type=authorization_code`;
-        return this.requestAsync(url)
+        return this.requestAsync(url);
     }
 
     /**
@@ -77,10 +77,10 @@ class Ctrl {
 
         this.getSessionKey(code)
             .then(doc => {
-                doc = JSON.parse(doc)
-                if (doc && doc.errmsg) return res.tools.setJson(doc.errcode, doc.errmsg)
+                doc = JSON.parse(doc);
+                if (doc && doc.errmsg) return res.tools.setJson(doc.errcode, doc.errmsg);
                 if (doc && doc.openid) {
-                    body.username = doc.openid
+                    body.username = doc.openid;
                     return user.findOne(doc.openid)
                 }
             })
@@ -91,9 +91,9 @@ class Ctrl {
             .then(doc => {
                 if (doc && doc._id) return res.tools.setJson(0, '注册成功', {
                     token: res.jwt.setToken(doc._id)
-                })
+                });
             })
-            .catch(err => next(err))
+            .catch(err => next(err));
     }
 
     /**

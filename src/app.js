@@ -64,6 +64,7 @@ app.use('/', routes);
 // app.use('/users', users);
 app.use('/im', im);
 app.use('/common', common);
+// app.use('/fileUpload', fileUpload);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     let err = new Error('Not Found');

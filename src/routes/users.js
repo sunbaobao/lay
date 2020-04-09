@@ -12,4 +12,4 @@ router.post('/reset/password', user.resetPassword);
 router.post('/info', user.saveInfo);
 router.get('/info', user.getInfo);
 router.get('/allUser', user.getAllUser);
-export default router
+export default router;

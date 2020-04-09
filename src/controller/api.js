@@ -1,6 +1,6 @@
-import request from 'request'
-import qs from 'querystring'
-import Token from '../models/Token'
+import request from 'request';
+import qs from 'querystring';
+import Token from '../models/Token';
 
 class Api {
     constructor() {
