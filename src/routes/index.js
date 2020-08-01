@@ -17,9 +17,9 @@ const tools = function (req, res) {
                     message: message || null
                 },
                 data: data || null
-            })
+            });
         }
-    }
+    };
 
 };
 router.use(function (req, res, next) {
@@ -196,7 +196,7 @@ router.post('/bdApi/FaceDetect', function (req, res) {
     res.json({
         code: "1",
         message: "还没放成"
-    })
+    });
 });
 router.use('/user', users);
 router.use('/api', api);
@@ -225,7 +225,7 @@ function hashPasswordAsync(pas) {
         resolve({
             password: crypto.createHash('md5').update(pas).digest('hex')
 
-        })
+        });
     });
 
 }

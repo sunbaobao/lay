@@ -17,9 +17,9 @@ const autoReplay = [
     'face[黑线]  你慢慢说，别急……',
     '(*^__^*) face[嘻嘻] ，是贤心吗？'
 ];
-const server=require("./bin/www");
+const server = require("./bin/www");
 const io = require('socket.io')(server);
-const Msg=require("./models/msg");
+const Msg = require("./models/msg");
 io.on('connection', function (socket) {
     console.log("connect");
     socket.on('message', function (d) {
@@ -28,8 +28,8 @@ io.on('connection', function (socket) {
             /*用户上线*/
             case 'reg':
                 user[d.content.uid] = socket.id;
-                for(let i in d.content.group){
-                    rooms[d.content.group[i].id]=1;
+                for (let i in d.content.group) {
+                    rooms[d.content.group[i].id] = 1;
                     socket.join(d.content.group[i].id);
                 }
                 let num = 0, uuser = [];
@@ -61,12 +61,12 @@ io.on('connection', function (socket) {
                 };
                 /*处理单聊事件*/
                 if (d.content.to.type === 'friend') {
-                    console.log("1 friend",mydata.toid);
+                    console.log("1 friend", mydata.toid);
                     if (user[mydata.toid]) {/*广播消息*/
                         console.log(user[mydata.toid]);
                         socket.broadcast.to(user[mydata.toid]).emit('chatMessage', mydata);
                         // io.sockets.sockets[user[mydata.toid]].emit('chatMessage', mydata);
-                        console.log('【' + d.content.mine.username + '】对【' + d.content.to.username + '】说:' + d.content.mine.content)
+                        console.log('【' + d.content.mine.username + '】对【' + d.content.to.username + '】说:' + d.content.mine.content);
                     } else {
                         socket.emit('noonline', mydata);
                     }
@@ -75,46 +75,48 @@ io.on('connection', function (socket) {
                     /*处理群聊事件*/
                 } else if (d.content.to.type === 'group') {
                     mydata.id = mydata.toid;
-                    console.log("toid",mydata.toid);
+                    console.log("toid", mydata.toid);
                     // socket.broadcast.emit('chatMessage', mydata);
-                    socket.to(mydata.toid).emit('chatMessage',mydata)
+                    socket.to(mydata.toid).emit('chatMessage', mydata);
                 }
-                break
+                break;
         }
         /*注销事件*/
-    })
-        .on('disconnect', function () {
-            // console.log("")
-            let outid = 0, usernum = 0;
-            for (let x in user) {
-                usernum++;
-                console.log(x);
-                if (user[x] === socket.id) {
-                    outid = x;
-                    delete user[x]
-                }
+    }).on('disconnect', function () {
+        // console.log("")
+        let outid = 0, usernum = 0;
+        for (let x in user) {
+            usernum++;
+            console.log(x);
+            if (user[x] === socket.id) {
+                outid = x;
+                delete user[x];
             }
-            console.log('用户ID=' + outid + '下线了');
-            let out = {id: outid, num: usernum - 1};
-            io.sockets.emit('out', out);
-        });
+        }
+        console.log('用户ID=' + outid + '下线了');
+        let out = {id: outid, num: usernum - 1};
+        io.sockets.emit('out', out);
+    });
     socket.on('addFriend', function (data) {
-       let myMsg=new Msg(data);
+        let myMsg = new Msg(data);
         myMsg.save(function (err) {
-            Msg.find({read:false},function (err, messages) {
-                if(err){ console.log(err); return;}
-                let thisM=[];
-                for (let m in messages){
-                    if(messages[m].to_id===data.to_id.toString()){
+            Msg.find({read: false}, function (err, messages) {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                let thisM = [];
+                for (let m in messages) {
+                    if (messages[m].to_id === data.to_id.toString()) {
                         thisM.push(messages[m]);
                     }
                 }
-                let l=thisM.length;
+                let l = thisM.length;
                 if (user[data.to_id]) {
                     console.log("在线");
                     let mydata = {};
                     console.log(data.user);
-                    socket.broadcast.to(user[data.to_id]).emit('addM',{code:0, msg:l});
+                    socket.broadcast.to(user[data.to_id]).emit('addM', {code: 0, msg: l});
                     // io.sockets.sockets[user[data.user.id]].emit("addM", {code: 0, msg: l});
                 } else {
                     console.log("不在线");
@@ -128,19 +130,20 @@ io.on('connection', function (socket) {
         console.log(data);
     });
 
-    socket.on("addGS",function (data) {
-        io.to(data.id).emit("addGS",{
-            system: true
-            , id: data.id
-            , type: "group"
-            , content: data.username+ '加入群聊!'
-        })
+    socket.on("addGS", function (data) {
+        io.to(data.id).emit("addGS", {
+            system: true,
+            id: data.id,
+            type: "group",
+            content: data.username + '加入群聊!'
+        });
     });
-    socket.on("agreeF",function (data) {
+    socket.on("agreeF", function (data) {
 
-    })
+    });
 });
-function handERr(res,msg) {
+
+function handERr(res, msg) {
 
 }
 

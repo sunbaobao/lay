@@ -186,7 +186,7 @@ router.post("/socketID", function (req, res, next) {
                 }
                 res.json({
                     code: req.body.ID
-                })
+                });
             });
         }
     });
@@ -210,20 +210,20 @@ router.post("/sign", function (req, res, next) {
                 res.json({
                     code: "1",
                     message: "存入数据库失败"
-                })
+                });
             } else {
                 res.json({
                     code: "0",
                     message: "存入数据库成功"
-                })
+                });
             }
-        })
-    })
+        });
+    });
 });
 router.post("/find", checkLogin);
 router.post("/find", function (req, res, next) {
     if (!req.body.name) {
-        console.log(req)
+        console.log(req);
         req.flash('error', '未找到name');
         return res.json({
             msg: "参数为找到"
@@ -231,7 +231,7 @@ router.post("/find", function (req, res, next) {
     }
     let name = req.body.name;
     let data = { code: 0, data: [] };
-    console.log(name)
+    console.log(name);
     let re = new RegExp(name, "g");
     User.find({ username: re }, function (err, users) {
         if (err) return handlErr(err);
@@ -243,11 +243,10 @@ router.post("/find", function (req, res, next) {
                     sign: users[user].sign || "",
                     avatar: users[user].avatar || "//res.layui.com/images/fly/avatar/00.jpg",
                     id: users[user]._id
-                }
-            )
+                });
         }
         res.json(data);
-    })
+    });
 });
 router.post("/findG", checkLogin);
 router.post("/findG", function (req, res, next) {
@@ -271,10 +270,10 @@ router.post("/findG", function (req, res, next) {
                     avatar: groups[group].avatar || "images/groupAvatar.jpg",
                     id: groups[group].id
                 }
-            )
+            );
         }
         res.json(data);
-    })
+    });
 });
 router.get("/getmsg", checkLogin);
 router.get("/getmsg", function (req, res, next) {
@@ -284,8 +283,8 @@ router.get("/getmsg", function (req, res, next) {
             code: 0,
             pages: 1,
             data: messages
-        })
-    })
+        });
+    });
 
 });
 router.get("/getUnmsg", function (req, res, next) {
@@ -294,8 +293,8 @@ router.get("/getUnmsg", function (req, res, next) {
         res.json({
             code: 0,
             msg: messages.length
-        })
-    })
+        });
+    });
 
 });
 router.post("/message/read", function (req, res, next) {
@@ -304,7 +303,7 @@ router.post("/message/read", function (req, res, next) {
             messages[x].read = true;
             messages[x].save();
         }
-        res.json({ code: 0, "msg": "s" })
+        res.json({ code: 0, "msg": "s" });
     });
 
 });
@@ -338,7 +337,7 @@ router.post("/agreeFriend", function (req, res, next) {
                     "avatar": req.body.avatar
                 });
                 user.markModified("friend");
-                user.save(function (err) {
+                user.save(err=> {
                     if (err) console.log(err);
                 });
                 console.log("保存成功", user.friend[i]);
@@ -431,7 +430,7 @@ router.post("/addG", function (req, res, next) {
      res.json(req.body);*/
     let p = new Promise(function (resolve, reject) {
         Group.findOne({ id: req.body.Gid }, function (err, group) {
-            if (err) { reject(err); console.log("err"); return }
+            if (err) { reject(err); console.log("err"); return; }
             console.log("1", req.body);
             group.list = group.list || [];
             for (let x in group.list) {
@@ -480,16 +479,16 @@ router.post("/addG", function (req, res, next) {
             user.save();
             res.json({
                 code: 0, msg: "添加群组成功", data: {
-                    type: 'group' //列表类型，只支持friend和group两种
-                    , avatar: doc.avatar//群组头像
-                    , groupname: doc.groupname //群组名称
-                    , id: doc.id //群组id
+                    type: 'group', //列表类型，只支持friend和group两种
+                     avatar: doc.avatar,//群组头像
+                     groupname: doc.groupname, //群组名称
+                    id: doc.id //群组id
                 }
-            });
+            })
         });
     }, function (err) {
         console.log(err);
-    })
+    });
 
 
 });
@@ -505,7 +504,7 @@ router.get("/getMembers", function (req, res, next) {
             }
         }
         res.json({ code: 0, msg: "", data: { list: list } });
-    })
+    });
 });
 router.post("/removeFriend", function (req, res, next) {
     /*uid: uid //对方用户ID

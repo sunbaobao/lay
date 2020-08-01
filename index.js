@@ -17,7 +17,7 @@ let rooms=[];
 let currentRoom={};
 io.on('connection', function(socket){
     socket.on('new message', function(msg){
-        io.emit('chat message', msg)
+        io.emit('chat message', msg);
     });
     socket.on("add user",function (user) {
 
