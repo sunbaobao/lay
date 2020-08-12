@@ -50,6 +50,10 @@ const UserSchema = new Schema({
     group: Schema.Types.Mixed,
     salt: {type: String},
     sign:String,
+    roles:{
+        type:Array,
+        default:['visitors']
+    }
 });
 
 const reasons = UserSchema.statics.failedLogin = {

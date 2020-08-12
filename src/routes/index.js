@@ -16,7 +16,9 @@ const tools = function (req, res) {
                     code: code || 0,
                     message: message || null
                 },
-                data: data || null
+                data: data || null,
+                code: code || 20000,
+                message: message || null
             });
         }
     };

@@ -26,7 +26,7 @@ class Ctrl {
      */
     requestAsync(url) {
         return new Promise((resolve, reject) => {
-            request({url: url}, (err, res, body) => {
+            request({ url: url }, (err, res, body) => {
                 if (err) return reject(err);
                 return resolve(body);
             });
@@ -249,7 +249,7 @@ class Ctrl {
                 });
                 return res.tools.setJson(1, '用户名已存在')
             })
-            .then(doc => res.tools.setJson(0, '注册成功',{
+            .then(doc => res.tools.setJson(0, '注册成功', {
                 token: res.jwt.setToken(doc._id),
             }))
             .catch(err => next(err))
@@ -284,9 +284,10 @@ class Ctrl {
     signIn(req, res, next) {
         const username = req.body.username;
         const password = req.body.password;
+        console.log('11', req.body.code, req.session.code);
         if (!username || !password) return res.tools.setJson(1, '用户名或密码错误');
         if (!req.body.code) return res.tools.setJson(1, '未输入验证码');
-        // console.log(req.body.code,req.session.code);
+        console.log(req.body.code, req.session.code);
         if (req.body.code.toLowerCase() !== req.session.code.toLowerCase()) return res.tools.setJson(1, '验证码错误');
         user.getAuthenticated(username, password)
             .then(doc => {
@@ -463,7 +464,7 @@ class Ctrl {
     }
 
     async getAllUser(req, res, next) {
-        const {currentPage = 1, pageSize = 10} = req.query;
+        const { currentPage = 1, pageSize = 10 } = req.query;
         const allUser = await user.find({}, '-_id -__v -password');
         res.tools.setJson(0, "查询成功", {
             user: allUser.slice((currentPage - 1) * pageSize, currentPage * pageSize),
