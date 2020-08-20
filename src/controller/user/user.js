@@ -513,7 +513,7 @@ class Ctrl {
     }).catch(err => next(err))
   }
 
-  async getAllUser(req, res, next) {
+  async getAllUser(req, res, next)  {
     const { currentPage = 1, pageSize = 10 } = req.query
     const allUser = await user.find({}, '-_id -__v -password')
     res.tools.setJson(0, '查询成功', {

@@ -7,6 +7,7 @@ const Post = require('../models/post.js');
 const jwt = require("../middlewares/jwt");
 import users from "./users";
 import api from './api';
+import log from './log';
 import fileUpload from './fileUpload';
 const tools = function (req, res) {
     return {
@@ -202,6 +203,7 @@ router.post('/bdApi/FaceDetect', function (req, res) {
 });
 router.use('/user', users);
 router.use('/api', api);
+router.use('/log', log);
 router.use('/fileUpload',fileUpload);
 module.exports = router;
 
