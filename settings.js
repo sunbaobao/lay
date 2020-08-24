@@ -9,9 +9,9 @@ module.exports = {
     db: 'blog',
     host: '129.28.184.17',
     port: 27017,
-    user:"client",
-    password:"150sun",
-    redis:{
+    user: "client",
+    password: "150sun",
+    redis: {
         development: {
             connectionString: 'redis://127.0.0.1:6379'
         },
@@ -19,7 +19,7 @@ module.exports = {
             connectionString: 'redis://127.0.0.1:6379',
         }
     },
-    mongodb:{
+    mongodb: {
         development: {
             connectionString: '129.28.184.17:27017'
         },
@@ -34,14 +34,24 @@ module.exports = {
     },
     orderStatus: {
         'submitted': '已提交',
-        'canceled' : '已取消',
+        'canceled': '已取消',
         'confirmed': '已确认',
-        'finished' : '已完成',
+        'finished': '已完成',
     },
     wechat: {
         appid: 'wxf1d3181c8a921b80',
         secret: '53dfef4e1f43cf2fe1e322582e6fa5e7',
     },
+    bdToken: {
+        face: {
+            client_id: "SnEO6ZblR8xDD5RyYMeaeQ3x",
+            client_secret: 'mEg6dy7W19QrfZ1GawGjUPe7Te8VW1GS'
+        },
+        orc: {
+            client_id: "2opuXFQA2Dx5H7eeWBVWsfRK",
+            client_secret: 'PVIrDqEzMT6mSL3WpPkpGr8lcAmB7wsG'
+        }
+    }
 };
 
 

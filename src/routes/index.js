@@ -86,7 +86,7 @@ router.post('/reg', function (req, res) {
             group: []
         });
         //检查用户名是否已经存在
-        User.findOne({username: newUser.username}, function (err, user) {
+        User.findOne({ username: newUser.username }, function (err, user) {
             if (err) {
                 req.flash('error', err);
                 return res.redirect('/');
@@ -126,22 +126,22 @@ router.post('/login', function (req, res) {
     /* let md5 = crypto.createHash('md5'),
      password = md5.update(req.body.password).digest('hex');*/
     //检查用户是否存在
-    User.findOne({username: req.body.name}, function (err, user) {
+    User.findOne({ username: req.body.name }, function (err, user) {
         if (!user) {
             req.flash('error', '用户不存在!');
             return res.redirect('/login');//用户不存在则跳转到登录页
         }
         // let password=hashPassword(req.body.password).password;
-       if(user.comparePassword(req.body.password)){
-           //用户名密码都匹配后，将用户信息存入 session
-           req.session.user = user;
-           req.flash('success', '登陆成功!');
-           res.jwt.setToken(user.id);
-           res.redirect('/');//登陆成功后跳转到主页
-       }else{
-           req.flash('error', '密码错误!');
-           return res.redirect('/login');//密码错误则跳转到登录页
-       }
+        if (user.comparePassword(req.body.password)) {
+            //用户名密码都匹配后，将用户信息存入 session
+            req.session.user = user;
+            req.flash('success', '登陆成功!');
+            res.jwt.setToken(user.id);
+            res.redirect('/');//登陆成功后跳转到主页
+        } else {
+            req.flash('error', '密码错误!');
+            return res.redirect('/login');//密码错误则跳转到登录页
+        }
         // bcrypt.hash(req.body.password, user.salt, null, function (err, hash) {
         //     if (err) throw err;
         //     //检查密码是否一致
@@ -185,7 +185,7 @@ router.post('/post', function (req, res) {
      minute: date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +
      date.getHours() + ":" + (date.getMinutes() < 10 ? '0' + date.getMinutes():date.getMinutes())
      };*/
-    let post = new Post({name: currentUser.username, time: date, title: req.body.title, post: req.body.post});
+    let post = new Post({ name: currentUser.username, time: date, title: req.body.title, post: req.body.post });
     post.save(function (err) {
         if (err) {
             req.flash('error', err);
@@ -198,13 +198,13 @@ router.post('/post', function (req, res) {
 router.post('/bdApi/FaceDetect', function (req, res) {
     res.json({
         code: "1",
-        message: "还没放成"
+        message: "正在开发"
     });
 });
 router.use('/user', users);
 router.use('/api', api);
 router.use('/log', log);
-router.use('/fileUpload',fileUpload);
+router.use('/fileUpload', fileUpload);
 module.exports = router;
 
 function checkLogin(req, res, next) {

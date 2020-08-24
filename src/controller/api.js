@@ -1,17 +1,25 @@
 import request from 'request';
 import qs from 'querystring';
 import Token from '../models/Token';
-
+import setting from '../../settings.js';
 class Api {
     constructor() {
         this.getToken = this.getToken.bind(this)
     }
-
-    async getBdToken() {
+    /**
+     * 获取百度token
+     * @type token类型
+     */
+    async getBdToken(type) {
+        type = type || 'face';
+        let key = setting.bdToken[type];
+        if (!key) {
+            return Promise.reject('未知的类型');
+        }
         const param = qs.stringify({
             'grant_type': 'client_credentials',
-            'client_id': 'SnEO6ZblR8xDD5RyYMeaeQ3x',
-            'client_secret': 'mEg6dy7W19QrfZ1GawGjUPe7Te8VW1GS'
+            'client_id': key.client_id,
+            'client_secret': key.client_secret
         });
 
         const url = 'http://aip.baidubce.com//oauth/2.0/token?' + param;
@@ -30,51 +38,52 @@ class Api {
     }
 
     async getToken(req, res, next) {
-        const tokenName = req.body.tokenName;
+        let tokenName = req.body.tokenName;
+        let type = req.body.tokenType || '';
         if (tokenName && tokenName === "bdToken") {
+            tokenName = tokenName + type.trim();
             try {
-                const token = await Token.find({tokenName: "bdToken"});
+                const token = await Token.find({ tokenName: tokenName });
                 if (token.length) {
-                   if(token[0].expressIn<=Date.now()){
-                       this.getBdToken().then(function (data) {
-                           const dataJSon=JSON.parse(data)
+                    if (token[0].expressIn <= Date.now()) {
+                        this.getBdToken(type).then(function (data) {
+                            const dataJSon = JSON.parse(data)
 
-                           token[0].save({
-                               token: dataJSon.access_token,
-                               tokenName:"bdToken",
-                               expressIn: Date.now()+parseInt(data.expires_in)
-                           });
-                           res.tools.setJson(0, "获取成功", {
-                               token:dataJSon.access_token,
-                               tokenName
-                           })
-                       });
-                   }else {
-                       res.tools.setJson(0, "获取成功", {
-                           token:token[0].token
-                       })
-                   }
+                            token[0].save({
+                                token: dataJSon.access_token,
+                                tokenName: tokenName,
+                                expressIn: Date.now() + parseInt(data.expires_in)
+                            });
+                            res.tools.setJson(0, "获取成功", {
+                                token: dataJSon.access_token,
+                                tokenName
+                            })
+                        });
+                    } else {
+                        res.tools.setJson(0, "获取成功", {
+                            token: token[0].token
+                        })
+                    }
                 } else {
-                    this.getBdToken().then(function (data) {
-                        const dataJSon=JSON.parse(data);
+                    this.getBdToken(type).then(function (data) {
+                        const dataJSon = JSON.parse(data);
                         Token.create({
                             token: dataJSon.access_token,
-                            tokenName:"bdToken",
-                            expressIn: Date.now()+parseInt(dataJSon.expires_in)
+                            tokenName: tokenName,
+                            expressIn: Date.now() + parseInt(dataJSon.expires_in)
                         });
                         res.tools.setJson(0, "获取成功", {
-                            token:dataJSon.access_token,
+                            token: dataJSon.access_token,
                             tokenName
                         })
-                    });
-                    // Token.create({
-                    //
-                    // })
+                    }).catch(err => {
+                        res.tools.setJson(1, "获取失败", err)
+                    })
                 }
 
             } catch (e) {
                 console.log(e);
-                res.tools.setJson(1, "获取失败", {e})
+                res.tools.setJson(1, "获取失败", { e })
             }
         }
     }
