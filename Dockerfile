@@ -4,3 +4,4 @@ WORKDIR /usr/local/app
 RUN npm i --registry=https://registry.npm.taobao.org
 ENV NODE_ENV dev
 EXPOSE 3000
+CMD [ "npm", "start" ]
