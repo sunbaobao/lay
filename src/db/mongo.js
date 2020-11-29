@@ -8,13 +8,14 @@
 module.exports = new Db(settings.db, new Server(settings.host, settings.port),
  {safe: true});*/
 const db_info = require('../../settings');
-const mongoose = require('mongoose'),
-    DB_URL = 'mongodb://' +db_info.user+':'+db_info.password+
-        '@localhost:27017/blog';
+const mongoose = require('mongoose');
+const DB_URL = 'mongodb://' + db_info.user + ':' + db_info.password +
+    '@129.28.184.17:27017/blog';
 console.log(DB_URL);
-var options = {
+const options = {
     useNewUrlParser: true,
-}
+    useUnifiedTopology: true
+};
 mongoose.Promise = global.Promise;
 const connect = mongoose.connect(DB_URL, options);
 
@@ -22,7 +23,7 @@ const connect = mongoose.connect(DB_URL, options);
  * 连接成功
  */
 mongoose.connection.on('connected', function () {
-    console.log('Mongoose connection open to ' + DB_URL+'succeed');
+    console.log('Mongoose connection open to ' + DB_URL + 'succeed');
 });
 
 /**

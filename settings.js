@@ -4,7 +4,7 @@
 module.exports = {
     cookieSecret: 'myblog',
     db: 'blog',
-    host: 'localhost',
+    host: '129.28.184.17',
     port: 27017,
     user:"client",
     password:"150sun",
