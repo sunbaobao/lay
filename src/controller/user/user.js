@@ -203,6 +203,7 @@ class Ctrl {
             if (!doc) user.create({
                 username: username,
                 password: jwt.setMd5(password),
+                roles:['admin']
             }, function (err, jellybean, snickers) {
                 if (!err) {
                     console.log("初始化管理员成功", jellybean.username)
@@ -243,10 +244,12 @@ class Ctrl {
             username
         })
             .then(doc => {
-                if (!doc) return user.create({
-                    username: username,
-                    password: res.jwt.setMd5(password)
-                });
+                if (!doc){
+                    return user.create({
+                        username: username,
+                        password: res.jwt.setMd5(password)
+                    });
+                }
                 return res.tools.setJson(1, '用户名已存在')
             })
             .then(doc => res.tools.setJson(0, '注册成功',{
